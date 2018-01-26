@@ -110,10 +110,10 @@ public class PRODUCTO {
         while (rs.next()) {
             obj = new JSONObject();
             obj.put("ID", ID);
-            obj.put("NOMBRE", NOMBRE);
-            obj.put("IMAGEN", IMAGEN);
-            obj.put("PRECIO_COMPRA", PRECIO_COMPRA);
-            obj.put("PRECIO_VENTA", PRECIO_VENTA);
+            obj.put("NOMBRE", rs.getString("NOMBRE"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
             json.put(obj);
         }
         rs.close();

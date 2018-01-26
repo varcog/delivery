@@ -31,12 +31,3 @@ function cambiar_menu(url) {
     $("#content_frame").attr("src", url);
 }
 
-//<editor-fold defaultstate="collapsed" desc="CARGANDO">
-function mostrarCargando() {
-    $("#cargando").removeClass("hidden");
-}
-
-function ocultarCargando() {
-    $("#cargando").addClass("hidden");
-}
-//</editor-fold>

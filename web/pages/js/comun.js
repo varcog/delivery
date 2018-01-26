@@ -1,8 +1,3 @@
-function resize_contenedor() {    
-//    var height = $(document).find("body").css("height");
-//    var doc = $(window.parent.document)[0];
-//    $(doc).find("#content_frame").css("height",height);    
-}
 
 var dataTable_conf = {
     "language": {
@@ -39,11 +34,11 @@ function mostrarCargando() {
                 + " </div>"
                 + "</div>");
     }
-    $("#div_cargando_background").removeClass("d-none");
+    $("#div_cargando_background").removeClass("hidden");
 }
 
 function ocultarCargando() {
-    $("#div_cargando_background").addClass("d-none");
+    $("#div_cargando_background").addClass("hidden");
 }
 
 
@@ -51,16 +46,6 @@ function ocultarCargando() {
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
-//<editor-fold defaultstate="collapsed" desc="CARGANDO">
-function mostrarCargando() {
-    window.parent.window.mostrarCargando();
-}
-
-function ocultarCargando() {
-    window.parent.window.ocultarCargando();
-}
-//</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="FORMATO FECHA">
 ;
@@ -299,37 +284,6 @@ function buscar(ele, selector) {
     }
 }
 //</editor-fold>
-
-//<editor-fold defaultstate="collapsed" desc="RESIZE">
-//function resize() {
-//    var height = $(document).find("body").css("height");
-//    var doc = $(window.parent.document)[0];
-//    $(doc).find("#content_frame").css("height", height);
-//}
-
-$(window).resize(function () {
-    resize();
-});
-//</editor-fold>
-
-function acomodar_info_box() {
-    var hh = 0, ac;
-    $(".info-box").each(function (i, e) {
-        ac = $(e).height();
-        if (ac > hh)
-            hh = ac;
-    });
-    if (hh > 0) {
-        hh = hh + "px";
-        $(".info-box-icon").css({
-            height: hh,
-            "line-height": hh
-        });
-        $(".info-box-content").css({
-            height: hh
-        });
-    }
-}
 
 function addError(selector) {
     $(selector)[0].style.setProperty("background", "#dd4b39", "important");

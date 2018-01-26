@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>AsBrok - Asistencia Médica</title>
+        <!-- Bootstrap core CSS-->
+        <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom fonts for this template-->
+        <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="js/timepicker/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css">
+        <!-- Page level plugin CSS-->
+        <link href="../vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+        <!-- Custom styles for this template-->
+        <link href="../css/sb-admin.css" rel="stylesheet">
+        <link href="css/css.css" rel="stylesheet">
+    </head>
+
+    <body id="page-top">
+        <div class="container-fluid">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon">
+                        <i class="fa fa-hospital-o icono_servicio"></i>
+                    </div>
+                    <select class="form-control" id="servicio" onchange="cambiar_servicio();">
+                        <option value="0">CLINICAS</option>
+                        <option value="1">FARMACIAS</option>
+                        <option value="2">MEDICOS</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-hospital-o icono_servicio"></i> 
+                    <span class="titulo_servicio"></span>
+                    <i class="fa fa-plus-circle" style="color: green; float: right; cursor:pointer; font-size: 26px;" title="Agregar" onclick="add_tipo();"></i> 
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr role="row">
+                                    <th>Nombre</th>
+                                    <!--<th>Descripción</th>-->
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <!--<th>Descripción</th>-->
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody id="cuerpo_tabla">
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--Registrar Model-->
+        <div class="modal fade" id="registrarModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+            <div class="modal-dialog w95" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="registrarModalLabel"></h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id_select" value="0"/>
+                        <!--NOMBRE-->
+                        <div class="form-group">
+                            <label for="nombres">Nombre</label>
+                            <input type="text" class="form-control" id="nombres" placeholder="Nombre">
+                        </div>
+                        <!--OBSERVACION-->
+                        <div class="form-group oculto hclinica">
+                            <label for="observacion">Observacion</label>
+                            <input type="text" class="form-control" id="observacion" placeholder="Observacion">
+                        </div>
+                        <!--ESPECIALIDAD CLINICA-->
+                        <div class="form-group oculto hclinica">
+                            <label for="observacion">Categoría</label>
+                            <select class="form-control" id="especialidad_clinica" style="width:calc(100% - 35px); display: inline-block;"></select>
+                            <i class="fa fa-plus-circle text-success" title="CREAR CATEGORIA" onclick="modal_especialidad_clinica();" style="font-size: 25px;"></i>
+                        </div>
+                        <!--UBICACION-->
+                        <div class="card mb-3 oculto hclinica hfarmacia">
+                            <div class="card-header">
+                                <i class="fa fa-map-marker"></i> 
+                                <span>UBICACIONES</span>
+                                <i class="fa fa-plus-circle" style="color: green; float: right; cursor:pointer; font-size: 26px;" title="Agregar" onclick="add_ubicacion();"></i> 
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr role="row">
+                                                <th>Direccion</th>
+                                                <th>Teléfono</th>
+                                                <th class="hclinica oculto">Teléfono 2</th>
+                                                <th class="hclinica oculto">Teléfono Ambulancia</th>
+                                                <th>Ciudad</th>
+                                                <th class="hfarmacia oculto">Atencion</th>
+                                                <th>Ubicacion</th>
+                                                <th>Eliminar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cuerpo_tabla_ubicacion">
+                                        </tbody>
+                                    </table> 
+                                </div>
+                            </div>
+                        </div>
+                        <!--CELULAR MEDICO-->
+                        <div class="form-group oculto hmedico">
+                            <label>Celular:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-phone"></i>
+                                </div>
+                                <input type="text" class="form-control" id="celular" data-inputmask='"mask": "999-99999"' data-mask>
+                            </div>
+                        </div>
+                        <!--TELEFONO 1 MEDICO-->
+                        <div class="form-group oculto hmedico">
+                            <label>Telefono 1:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-phone"></i>
+                                </div>
+                                <input type="text" class="form-control" id="telf1" data-inputmask='"mask": "(9) 99-99999"' data-mask>
+                            </div>
+                        </div>
+                        <!--TELEFONO 2 MEDICO-->
+                        <div class="form-group oculto hmedico">
+                            <label>Telefono 2:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-phone"></i>
+                                </div>
+                                <input type="text" class="form-control" id="telf2" data-inputmask='"mask": "(9) 99-99999"' data-mask>
+                            </div>
+                        </div>         
+                        <!--DIRECCION MEDICO-->
+                        <div class="form-group oculto hmedico">
+                            <label for="direccion">Direccion</label>
+                            <input type="text" class="form-control" id="direccion" placeholder="Direccion">
+                        </div>
+                        <!--HORARIO DE ATENCION 1 MEDICO-->
+                        <div class="card mb-3 oculto hmedico">
+                            <div class="card-header">
+                                <i class="fa fa-clock-o"></i> 
+                                <span>Horario Atencion 1</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <label>Desde:</label>
+                                    <input type="text" id="at1de" class="form-control timepicker">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>Hasta :</label>
+                                    <input type="text" id="at1hs" class="form-control timepicker">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--HORARIO DE ATENCIO 2 MEDICO-->
+                        <div class="card mb-3 oculto hmedico">
+                            <div class="card-header">
+                                <i class="fa fa-clock-o"></i> 
+                                <span>Horario Atencion 2</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <label>Desde:</label>
+                                    <input type="text" id="at2de" class="form-control timepicker">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>Hasta :</label>
+                                    <input type="text" id="at2hs" class="form-control timepicker">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--ESPECIALIDADES MEDICO-->
+                        <div class="card mb-3 oculto hmedico">
+                            <div class="card-header">
+                                <i class="fa fa-stethoscope"></i> 
+                                <span>ESPECIALIDADES</span>
+                                <i class="fa fa-plus-circle" style="color: green; float: right; cursor:pointer; font-size: 26px;" title="Agregar" onclick="add_especialidad();"></i> 
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr role="row">
+                                                <th>Especialidad</th>
+                                                <th>Eliminar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cuerpo_tabla_especialidad">
+                                        </tbody>
+                                    </table> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group text-center">
+                            <button type="button" class="btn btn-success" onclick="ok_crear();" id="btn_crear">CREAR</button>
+                            <button type="button" class="btn btn-danger" onclick="salir();">SALIR</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!--Registrar Especialidad-->
+        <div class="modal fade" id="especialidadModal" tabindex="-1" role="dialog" aria-labelledby="especialidadModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registrar Especialidad del Médico</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombres">Descripcion:</label>
+                            <input type="text" class="form-control" id="descripcion_esp" placeholder="Especialidad">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group text-center">
+                            <button type="button" class="btn btn-success" onclick="crear_especialidad_medica();">CREAR</button>
+                            <button type="button" class="btn btn-danger" onclick="salir_especialidad();">SALIR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Registrar Especialidad-->
+        <div class="modal fade" id="especialidadClinicaModal" tabindex="-1" role="dialog" aria-labelledby="especialidadClinicaModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Registrar Categoría </h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombres">Descripcion:</label>
+                            <input type="text" class="form-control" id="descripcion_esp_clinica" placeholder="Categoria">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group text-center">
+                            <button type="button" class="btn btn-success" onclick="crear_especialidad_clinica();">CREAR</button>
+                            <button type="button" class="btn btn-danger" onclick="salir_especialidad_clinica();">SALIR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--alert modal-->
+        <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="mapaModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="alertModalLabel"></h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="alertModalText"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Error Conexion modal-->
+        <div class="modal fade" id="errorConexionModal" tabindex="-1" role="dialog" aria-labelledby="errorConexionModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Alerta</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Error en la comunicacion con el servidor intentelo de nuevo.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Confirm Model-->
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="mapaModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModalLabel">Esta seguro de eliminar</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <button type="button" class="btn btn-success" onclick="eliminar();">ACEPTAR</button>
+                        <button type="button" class="btn btn-danger" onclick="cancelar();">CANCELAR</button>
+                    </div>
+                    <!--<div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                        <a class="btn btn-primary" href="index.html">Cerrar Sesion</a>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+        <!-- Maps Modal-->
+        <div class="modal fade" id="mapaModal" tabindex="-1" role="dialog" aria-labelledby="mapaModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ubicación</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="map" class="centrado" style="width: 100%; height: 400px;"></div>
+                    </div>
+                    <!--<div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                        <a class="btn btn-primary" href="index.html">Cerrar Sesion</a>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+        <!--CARGANDO-->
+        <div class="overlay-wrapper cargando" id="div_cargando_background">
+            <div class="overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+        </div>
+        <!-- Bootstrap core JavaScript-->
+        <script src="../vendor/jquery/jquery.min.js"></script>
+        <script src="../vendor/popper/popper.min.js"></script>
+        <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+        <!-- Core plugin JavaScript-->
+        <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+        <!-- Page level plugin JavaScript-->
+        <script src="../vendor/datatables/jquery.dataTables.js"></script>
+        <script src="../vendor/datatables/dataTables.bootstrap4.js"></script>
+        <!-- Custom scripts for all pages-->
+        <script src="../js/sb-admin.min.js"></script>
+        <!-- Custom scripts for this page-->
+        <script src="js/comun.js"></script>
+        <script src="js/registrar_servicio.js"></script>
+        <script src="js/input-mask/jquery.inputmask.js"></script>
+        <script src="js/input-mask/jquery.inputmask.extensions.js"></script>
+        <script src="js/timepicker/bootstrap-timepicker.min.js"></script>
+        <!--MAPA-->
+        <script src="https://maps.googleapis.com/maps/api/js?v=3&amp;key=AIzaSyBfTPlknW_g31o4vNAZkYxeYnbQ72j6hKs"></script>
+        <script src="js/mapa.js" type="text/javascript"></script>
+    </body>
+
+</html>
