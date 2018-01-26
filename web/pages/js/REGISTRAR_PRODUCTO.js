@@ -10,8 +10,31 @@ $(document).ready(function () {
 });
 
 
-function cargar() {
-    $.post(url, {evento: "cargar"}, function (resp) {
-        
+function crear() {
+    mostrarCargando();
+    var formData = new FormData($(input).parent()[0]);
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: formData,
+        mimeType: "multipart/form-data",
+        contentType: false,
+        cache: false,
+        processData: false,
+        success: function (data, textStatus, jqXHR)
+        {
+            $(input).prev().css("display", "");
+            $(input).prev().data("contenido", data);
+            ocultarCargando();
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+            ocultarCargando();
+            $("#alert").openAlertError("No se logro insertar correctamente.");
+        }
     });
+}
+
+function openModal() {
+    $('#myModal').modal();
 }

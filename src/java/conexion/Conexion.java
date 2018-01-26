@@ -66,6 +66,56 @@ public class Conexion {
         ps.close();
     }
 
+    public void EjecutarSentencia(String sentencia, Object... campos) throws SQLException {
+        PreparedStatement ps = con.prepareStatement(sentencia);
+        for (int i = 0; i < campos.length; i++) {
+            ps.setObject(i + 1, campos[i]);
+        }
+        ps.execute();
+        ps.close();
+    }
+
+    public void EjecutarSentencia(String sentencia, String... campos) throws SQLException {
+        PreparedStatement ps = con.prepareStatement(sentencia);
+        for (int i = 0; i < campos.length; i++) {
+            ps.setString(i + 1, campos[i]);
+        }
+        ps.execute();
+        ps.close();
+    }
+
+    public int EjecutarInsert(String consulta, String columnID, Object... campos) throws SQLException {
+        consulta = consulta.replaceAll(";", "");
+        consulta += "\nRETURNING \"" + columnID + "\";";
+        PreparedStatement ps = con.prepareStatement(consulta);
+        for (int i = 0; i < campos.length; i++) {
+            ps.setObject(i + 1, campos[i]);
+        }
+        ResultSet rs = ps.executeQuery();
+        int id = 0;
+        if (rs.next()) {
+            id = rs.getInt(columnID);
+        }
+        ps.close();
+        return id;
+    }
+
+    public int EjecutarInsert(String consulta, String columnID, String... campos) throws SQLException {
+        consulta = consulta.replaceAll(";", "");
+        consulta += "\nRETURNING \"" + columnID + "\";";
+        PreparedStatement ps = con.prepareStatement(consulta);
+        for (int i = 0; i < campos.length; i++) {
+            ps.setString(i + 1, campos[i]);
+        }
+        ResultSet rs = ps.executeQuery();
+        int id = 0;
+        if (rs.next()) {
+            id = rs.getInt(columnID);
+        }
+        ps.close();
+        return id;
+    }
+
     public void Close() {
         if (conectado) {
             try {
@@ -89,6 +139,19 @@ public class Conexion {
             return null;
         }
     }
+    
+    public ResultSet EjecutarConsulta(String consulta, Object ... campos) throws SQLException {
+        PreparedStatement ps;
+        try {
+            ps = statametObject(consulta);
+            ResultSet rs = ps.executeQuery();
+            return rs;
+        } catch (SQLException e) {
+            rollback();
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public PreparedStatement statamet(String sql) {
         try {
@@ -104,6 +167,19 @@ public class Conexion {
             PreparedStatement ps = con.prepareStatement(sql);
             for (int i = 0; i < campos.length; i++) {
                 ps.setString(i + 1, campos[i]);
+            }
+            return ps;
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
+    public PreparedStatement statametObject(String sql, Object... campos) {
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            for (int i = 0; i < campos.length; i++) {
+                ps.setObject(i + 1, campos[i]);
             }
             return ps;
         } catch (SQLException ex) {

@@ -4,13 +4,16 @@ import conexion.Conexion;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import modelo.PRODUCTO;
 import modelo.USUARIO;
 import org.json.JSONException;
 
+@MultipartConfig
 @WebServlet(name = "REGISTRAR_PRODUCTO_CONTROLLER", urlPatterns = {"/REGISTRAR_PRODUCTO_CONTROLLER"})
 public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
 
@@ -33,8 +36,20 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             String html = "";
             String evento = request.getParameter("evento");
             switch (evento) {
-                case "obtener_menu":
-                    html = obtener_menu(request, con);
+                case "todos":
+                    html = todos(request, con);
+                    break;
+                case "crear":
+                    html = crear(request, con);
+                    break;
+                case "datos":
+                    html = datos(request, con);
+                    break;
+                case "modificar":
+                    html = modificar(request, con);
+                    break;
+                case "eliminar":
+                    html = eliminar(request, con);
                     break;
             }
             con.commit();
@@ -87,7 +102,27 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String obtener_menu(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+    private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        return new PRODUCTO(con).todos().toString();
+    }
+
+    private String crear(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        String nombre = request.getParameter("");
+        PRODUCTO p = new PRODUCTO(con);
+        return null;
+    }
+
+    private String datos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        USUARIO usuario = con.getUsuario();
+        return null;
+    }
+
+    private String modificar(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        USUARIO usuario = con.getUsuario();
+        return null;
+    }
+
+    private String eliminar(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         USUARIO usuario = con.getUsuario();
         return null;
     }
