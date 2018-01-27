@@ -3,7 +3,6 @@ package controller;
 import conexion.Conexion;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.servlet.ServletException;
@@ -16,7 +15,6 @@ import javax.servlet.http.Part;
 import modelo.PRODUCTO;
 import modelo.USUARIO;
 import org.json.JSONException;
-import org.json.JSONObject;
 import util.SIS_EVENTOS;
 
 @MultipartConfig
