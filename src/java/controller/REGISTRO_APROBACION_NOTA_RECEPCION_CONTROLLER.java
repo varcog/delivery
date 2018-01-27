@@ -2,7 +2,6 @@ package controller;
 
 import conexion.Conexion;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,6 +14,8 @@ import org.json.JSONException;
 
 @WebServlet(name = "REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER", urlPatterns = {"/REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER"})
 public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
+
+    private int id_sucursal = 1;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -37,6 +38,9 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
             switch (evento) {
                 case "todos":
                     html = todos(request, con);
+                    break;
+                case "todos_productos":
+                    html = todos_productos(request, con);
                     break;
             }
             con.commit();
@@ -88,8 +92,17 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-    
+
     private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        int estado = Integer.parseInt(request.getParameter("estado"));
+        if (estado == 0) {
+            return new PRODUCTO(con).todos_Almacen(id_sucursal).toString();
+        } else {
+            return new PRODUCTO(con).stock_Almacen(id_sucursal).toString();
+        }
+    }
+
+    private String todos_productos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         return new PRODUCTO(con).todos().toString();
     }
 

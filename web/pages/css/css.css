@@ -111,6 +111,15 @@ body {
     height: 200px;
 }
 
+.x70{
+    width: 70px;
+    height: 70px;
+}
+
 /*.fs_img + .fs_img{
 
 }*/
+
+.modal_95 {
+    width: 95% !important;
+}

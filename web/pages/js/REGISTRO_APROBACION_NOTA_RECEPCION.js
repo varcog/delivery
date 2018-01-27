@@ -1,24 +1,26 @@
-var url = "../REGISTRAR_PRODUCTO_CONTROLLER";
-var tabla;
+var url = "../REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER";
+var tabla, tabla_stock_add;
+var html_aux;
 $(document).ready(function () {
+    tabla = $('#tabla').DataTable({"language": {"url": "../plugins/datatables/i18n/spanish.json"}});
+    tabla_stock_add = $('#tabla_stock_add').DataTable({"language": {"url": "../plugins/datatables/i18n/spanish.json"}});
+    $('#aumentarStockModal').on('shown.bs.modal', show_aumentar_stock);
+    $('#aumentarStockModal').on('hide.bs.modal', hidden_aumetar_stock);
     todos();
 });
 
-function todos() {
+function todos(estado) {
     mostrarCargando();
-    $.post(url, {evento: "todos"}, function (resp) {
+    estado = estado || 0;
+    $.post(url, {evento: "todos", estado: estado}, function (resp) {
+        tabla.destroy();
         var json = $.parseJSON(resp);
         var html = "";
         $.each(json, function (i, obj) {
             html += productoFilaHtml(obj);
         });
         $("#cuerpo").html(html);
-
-        tabla = $('#tabla').DataTable({
-            "language": {
-                "url": "../plugins/datatables/i18n/spanish.json"
-            }
-        });
+        tabla = $('#tabla').DataTable({"language": {"url": "../plugins/datatables/i18n/spanish.json"}});
         ocultarCargando();
     });
 }
@@ -29,12 +31,69 @@ function productoFilaHtml(obj) {
     tr += "<td class='text-right'>" + obj.PRECIO_COMPRA + "</td>";
     tr += "<td class='text-right'>" + obj.PRECIO_VENTA + "</td>";
     tr += "<td class='text-center'>";
-    tr += "<i class='fa fa-edit text-warning' title='Editar' onclick='pop_modificar_producto(" + obj.ID + ",this);'></i>";
-    tr += "<i class='fa fa-remove text-danger' title='Eliminar' onclick='pop_eliminar_producto(" + obj.ID + ",this);'></i>";
+    if (obj.IMAGEN)
+        tr += "<img src='" + obj.IMAGEN + "' class='x70' />";
     tr += "</td>";
+    tr += "<td class='text-right'>" + obj.CANTIDAD + "</td>";
     tr += "</tr>";
     return tr;
 }
+
+function ver_todos_stock(ele) {
+    var estado = parseInt($(ele).data("estado"));
+    if (estado === 0) {
+        $(ele).text("Ver Todos");
+        $(ele).data("estado", 1);
+        estado = 1;
+    } else {
+        $(ele).text("Ver Solo en Stock");
+        $(ele).data("estado", 0);
+        estado = 0;
+    }
+    todos(estado);
+}
+
+function pop_aumentar_stock() {
+    mostrarCargando();
+
+    $.post(url, {evento: "todos_productos"}, function (resp) {
+        var html = "";
+        var json = $.parseJSON(resp);
+        $.each(json, function (i, obj) {
+            html = "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
+            html += "<td>" + (obj.NOMBRE || "") + "</td>";
+            html += "<td class='text-right'><input type='number' class='stock_cantidad' value='0'/></td>";
+            html += "</tr>";
+        });
+        html_aux = html;
+        openModal('#aumentarStockModal');
+        ocultarCargando();
+    });
+}
+
+function show_aumentar_stock() {
+    $("#cuerpo_stock_add").html(html_aux);
+    tabla_stock_add = $('#tabla_stock_add').DataTable({"language": {"url": "../plugins/datatables/i18n/spanish.json"}});
+}
+
+function hidden_aumetar_stock() {
+    tabla_stock_add.destroy();
+}
+
+function aumentar_stock() {
+
+}
+
+function pop_reducir_stock() {
+
+}
+
+function reducir_stock() {
+
+}
+
+
+
 
 function pop_registrar_producto() {
     $("#c_id").val(0);

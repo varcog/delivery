@@ -1,4 +1,4 @@
-var dataTable_conf = {
+var dataTable_conf2 = {
     "language": {
 //        "decimal":        "",
         "emptyTable": "No hay datos disponibles en la tabla",
@@ -24,6 +24,11 @@ var dataTable_conf = {
         }
     }
 };
+var dataTable_conf = {
+    "language": {"url": "../plugins/datatables/i18n/spanish.json"},
+    responsive: true
+};
+
 
 function mostrarCargando() {
     if ($("#div_cargando_background").length === 0) {

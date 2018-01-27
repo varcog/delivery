@@ -148,4 +148,86 @@ public class PRODUCTO {
         return obj;
     }
 
+    public JSONArray todos_Almacen(int id_sucursal) throws SQLException, JSONException {
+        String consulta = "SELECT PRODUCTO.\"ID\",\n"
+                + "	   PRODUCTO.\"NOMBRE\",\n"
+                + "        PRODUCTO.\"PRECIO_COMPRA\",\n"
+                + "        PRODUCTO.\"PRECIO_VENTA\",\n"
+                + "        PRODUCTO.\"IMAGEN\",\n"
+                + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
+                + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
+                + "         LEFT JOIN (\n"
+                + "             SELECT \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_PRODUCTO\",\n"
+                + "					\"public\".\"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\"\n"
+                + "			   	FROM \"public\".\"DETALLE_NOTA_RECEPCION\"\n"
+                + "					INNER JOIN \"public\".\"NOTA_RECEPCION\" ON \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = \"public\".\"NOTA_RECEPCION\".\"ID\"\n"
+                + "					INNER JOIN \"public\".\"SUCURSAL\" ON \"public\".\"NOTA_RECEPCION\".\"ID_SUCURSAL\" = \"public\".\"SUCURSAL\".\"ID\" AND \"public\".\"SUCURSAL\".\"ID\" = ? \n"
+                + "		 ) AS CANTIDAD\n"
+                + "         ON PRODUCTO.\"ID\" = CANTIDAD.\"ID_PRODUCTO\"\n"
+                + "    GROUP BY PRODUCTO.\"ID\",\n"
+                + "	   		 PRODUCTO.\"NOMBRE\"\n"
+                + "    ORDER BY PRODUCTO.\"NOMBRE\" ASC;\n"
+                + "    \n"
+                + "";
+        PreparedStatement ps = con.statamet(consulta);
+        ps.setInt(1, id_sucursal);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("NOMBRE", rs.getString("NOMBRE"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
+            obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
+    public JSONArray stock_Almacen(int id_sucursal) throws SQLException, JSONException {
+        String consulta = "SELECT PRODUCTO.\"ID\",\n"
+                + "	   PRODUCTO.\"NOMBRE\",\n"
+                + "        PRODUCTO.\"PRECIO_COMPRA\",\n"
+                + "        PRODUCTO.\"PRECIO_VENTA\",\n"
+                + "        PRODUCTO.\"IMAGEN\",\n"
+                + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
+                + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
+                + "         INNER JOIN (\n"
+                + "             SELECT \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_PRODUCTO\",\n"
+                + "					\"public\".\"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\"\n"
+                + "			   	FROM \"public\".\"DETALLE_NOTA_RECEPCION\"\n"
+                + "					INNER JOIN \"public\".\"NOTA_RECEPCION\" ON \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = \"public\".\"NOTA_RECEPCION\".\"ID\"\n"
+                + "					INNER JOIN \"public\".\"SUCURSAL\" ON \"public\".\"NOTA_RECEPCION\".\"ID_SUCURSAL\" = \"public\".\"SUCURSAL\".\"ID\" AND \"public\".\"SUCURSAL\".\"ID\" = ? \n"
+                + "		 ) AS CANTIDAD\n"
+                + "         ON PRODUCTO.\"ID\" = CANTIDAD.\"ID_PRODUCTO\"\n"
+                + "    GROUP BY PRODUCTO.\"ID\",\n"
+                + "	   		 PRODUCTO.\"NOMBRE\"\n"
+                + "    ORDER BY PRODUCTO.\"NOMBRE\" ASC;\n"
+                + "    \n"
+                + "";
+        PreparedStatement ps = con.statamet(consulta);
+        ps.setInt(1, id_sucursal);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("NOMBRE", rs.getString("NOMBRE"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
+            obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
 }
