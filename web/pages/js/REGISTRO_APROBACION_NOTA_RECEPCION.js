@@ -77,10 +77,8 @@ function guardar_producto() {
                     tabla.cell(".producto_" + id_aux + " > td:eq(0)").data((json.NOMBRE || ""));
                     tabla.cell(".producto_" + id_aux + " > td:eq(1)").data(json.PRECIO_COMPRA);
                     tabla.cell(".producto_" + id_aux + " > td:eq(2)").data(json.PRECIO_VENTA);
-                    if (json.IMAGEN) {
+                    if (json.IMAGEN)
                         $(".producto_" + id_aux).attr("data-imagen", json.IMAGEN);
-                        $(".producto_" + id_aux).data("imagen", json.IMAGEN);
-                    }
                     tabla.rows().invalidate();
                 } else {
                     tabla.row.add($(productoFilaHtml(json))).draw(false);

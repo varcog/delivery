@@ -1,17 +1,23 @@
 package controller;
 
 import conexion.Conexion;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import modelo.PRODUCTO;
 import modelo.USUARIO;
 import org.json.JSONException;
+import org.json.JSONObject;
+import util.SIS_EVENTOS;
 
 @MultipartConfig
 @WebServlet(name = "REGISTRAR_PRODUCTO_CONTROLLER", urlPatterns = {"/REGISTRAR_PRODUCTO_CONTROLLER"})
@@ -39,17 +45,11 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
                 case "todos":
                     html = todos(request, con);
                     break;
-                case "crear":
-                    html = crear(request, con);
+                case "guardar_producto":
+                    html = guardar_producto(request, con);
                     break;
-                case "datos":
-                    html = datos(request, con);
-                    break;
-                case "modificar":
-                    html = modificar(request, con);
-                    break;
-                case "eliminar":
-                    html = eliminar(request, con);
+                case "eliminar_producto":
+                    html = eliminar_producto(request, con);
                     break;
             }
             con.commit();
@@ -106,25 +106,81 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
         return new PRODUCTO(con).todos().toString();
     }
 
-    private String crear(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        String nombre = request.getParameter("");
+    private String guardar_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        String descripcion = request.getParameter("descripcion");
+        double precio_compra = Double.parseDouble(request.getParameter("precio_compra"));
+        double precio_venta = Double.parseDouble(request.getParameter("precio_venta"));
+        String imagen = null;
+        String ruta = null;
+        Part file = request.getPart("imagen");
+        SIS_EVENTOS ev = new SIS_EVENTOS();
+        boolean ok_subir = false;
+        String ruta_folder = this.getServletContext().getRealPath("/img") + File.separator + "productos" + File.separator;
+        String ruta_web = this.getServletContext().getContextPath() + "/img/productos/";
+        Date d = new Date();
+        if (id > 0) {
+            if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
+                String tipo[] = file.getContentType().split("/");
+                if (tipo.length > 1) {
+                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+                } else {
+                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+                }
+                ok_subir = ev.guardarImagenEnElSistemaDeFicheros(file.getInputStream(), ruta);
+            }
+            PRODUCTO p = new PRODUCTO(con).buscar(id);
+            if (p == null) {
+                return "false";
+            }
+            if (!ok_subir) {
+                imagen = p.getIMAGEN();
+            }
+            String antImagen = p.getIMAGEN();
+            p.setNOMBRE(descripcion);
+            p.setIMAGEN(imagen);
+            p.setPRECIO_COMPRA(precio_compra);
+            p.setPRECIO_VENTA(precio_venta);
+            p.update();
+            if (antImagen != null && ok_subir) {
+                String ims[] = antImagen.split("/");
+                if (ims.length > 0) {
+                    ev.eliminarImagenEnElSistemaDeFicheros(ruta_folder + ims[ims.length - 1]);
+                }
+            }
+            return p.toJSONObject().toString();
+        } else {
+            PRODUCTO p = new PRODUCTO(id, descripcion, null, precio_compra, precio_venta);
+            p.setCon(con);
+            id = p.insert();
+            if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
+                String tipo[] = file.getContentType().split("/");
+                if (tipo.length > 1) {
+                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+                } else {
+                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+                }
+                ok_subir = ev.guardarImagenEnElSistemaDeFicheros(file.getInputStream(), ruta);
+            }
+            if (ok_subir) {
+                p.setIMAGEN(imagen);
+                p.setID(id);
+                p.update();
+            }
+            return p.toJSONObject().toString();
+        }
+    }
+
+    private String eliminar_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        int id = Integer.parseInt(request.getParameter("id"));
         PRODUCTO p = new PRODUCTO(con);
-        return null;
-    }
-
-    private String datos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        USUARIO usuario = con.getUsuario();
-        return null;
-    }
-
-    private String modificar(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        USUARIO usuario = con.getUsuario();
-        return null;
-    }
-
-    private String eliminar(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        USUARIO usuario = con.getUsuario();
-        return null;
+        p.setID(id);
+        p.delete();
+        return "true";
     }
 
 }

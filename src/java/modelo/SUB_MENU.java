@@ -78,7 +78,6 @@ public class SUB_MENU {
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    
     public JSONArray bucarSubMenuXCargo(int idCargo) throws SQLException, JSONException {
         String consulta = "SELECT \"SUB_MENU\".\"DESCRIPCION\",\n"
                 + "               \"SUB_MENU\".\"URL\",\n"
@@ -101,7 +100,30 @@ public class SUB_MENU {
         rs.close();
         ps.close();
         return json;
-        
-            
+
+    }
+
+    public JSONArray bucarSubMenuXMenu(int idMenu) throws SQLException, JSONException {
+        String consulta = "SELECT \"SUB_MENU\".\"DESCRIPCION\",\n"
+                + "               \"SUB_MENU\".\"URL\",\n"
+                + "               \"SUB_MENU\".\"IMAGEN\"\n"
+                + "	FROM public.\"SUB_MENU\"\n"
+                + "    WHERE \"SUB_MENU\".\"ID_MENU\" = " + idMenu + "\n"
+                + "";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            obj.put("URL", rs.getString("URL"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+
     }
 }

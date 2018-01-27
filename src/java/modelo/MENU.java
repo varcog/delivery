@@ -49,19 +49,20 @@ public class MENU {
 
     ////////////////////////////////////////////////////////////////////////////
     public JSONObject bucarMenuYSubMenuXCargo(int idCargo) throws SQLException, JSONException {
-        String consulta = "SELECT \"MENU\".\"DESCRIPCION\"\n"
+        String consulta = "SELECT \"MENU\".\"ID\",\n"
+                + "	     \"MENU\".\"DESCRIPCION\"\n"
                 + "	FROM public.\"MENU\", \n"
-                + "    	 public.\"SUB_MENU\",\n"
-                + "         public.\"PERMISO\"\n"
+                + "    	     public.\"SUB_MENU\",\n"
+                + "          public.\"PERMISO\"\n"
                 + "    WHERE \"PERMISO\".\"ID_CARGO\" = " + idCargo + "\n"
-                + "    	  AND \"PERMISO\".\"ID_SUB_MENU\" = \"SUB_MENU\".\"ID\"\n"
+                + "    	     AND \"PERMISO\".\"ID_SUB_MENU\" = \"SUB_MENU\".\"ID\"\n"
                 + "          AND \"SUB_MENU\".\"ID_MENU\" = \"MENU\".\"ID\"";
         PreparedStatement ps = con.statamet(consulta);
         ResultSet rs = ps.executeQuery();
         JSONObject json = new JSONObject();
         SUB_MENU sub_menu = new SUB_MENU(con);
         while (rs.next()) {
-            json.put(rs.getString("DESCRIPCION"), sub_menu.bucarSubMenuXCargo(idCargo));
+            json.put(rs.getString("DESCRIPCION"), sub_menu.bucarSubMenuXMenu(rs.getInt("ID")));
         }
         rs.close();
         ps.close();

@@ -109,7 +109,7 @@ public class PRODUCTO {
         JSONObject obj;
         while (rs.next()) {
             obj = new JSONObject();
-            obj.put("ID", ID);
+            obj.put("ID", rs.getInt("ID"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
@@ -119,6 +119,33 @@ public class PRODUCTO {
         rs.close();
         ps.close();
         return json;
+    }
+
+    public PRODUCTO buscar(int id) throws SQLException, JSONException {
+        String consulta = "SELECT * FROM public.\"PRODUCTO\"\n"
+                + "	WHERE \"ID\"=?;";
+        PreparedStatement ps = con.statametObject(consulta, id);
+        ResultSet rs = ps.executeQuery();
+        PRODUCTO p = new PRODUCTO(con);
+        if (rs.next()) {
+            p.setID(rs.getInt("ID"));
+            p.setNOMBRE(rs.getString("NOMBRE"));
+            p.setIMAGEN(rs.getString("IMAGEN"));
+            p.setPRECIO_COMPRA(rs.getDouble("PRECIO_COMPRA"));
+            p.setPRECIO_VENTA(rs.getDouble("PRECIO_VENTA"));
+            return p;
+        }
+        return null;
+    }
+
+    public JSONObject toJSONObject() throws SQLException, JSONException {
+        JSONObject obj = new JSONObject();
+        obj.put("ID", ID);
+        obj.put("NOMBRE", NOMBRE);
+        obj.put("IMAGEN", IMAGEN);
+        obj.put("PRECIO_COMPRA", PRECIO_COMPRA);
+        obj.put("PRECIO_VENTA", PRECIO_VENTA);
+        return obj;
     }
 
 }

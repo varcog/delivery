@@ -1,4 +1,3 @@
-
 var dataTable_conf = {
     "language": {
 //        "decimal":        "",
@@ -40,8 +39,6 @@ function mostrarCargando() {
 function ocultarCargando() {
     $("#div_cargando_background").addClass("hidden");
 }
-
-
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -310,4 +307,35 @@ function removeError(selector) {
 
 
 })(jQuery);
+
+var modales_cola = [];
+function openModal(modal) {
+    if (modales_cola.length > 0) {
+        var mm = modales_cola[modales_cola.length - 1];
+        $(mm).off("hidden.bs.modal");
+        $(mm).modal('hide');
+    }
+    modales_cola.push(modal);
+    $(modal).off("hidden.bs.modal");
+    $(modal).on('hidden.bs.modal', function (e) {
+        cerrar_modal();
+    });
+    $(modal).modal('show');
+}
+
+function cerrar_modal() {
+    var modal = modales_cola.pop();
+    if (modal) {
+        $(modal).off("hidden.bs.modal");
+        $(modal).modal('hide');
+    }
+    if (modales_cola.length > 0) {
+        var modal = modales_cola[modales_cola.length - 1];
+        $(modal).off("hidden.bs.modal");
+        $(modal).on('hidden.bs.modal', function (e) {
+            cerrar_modal();
+        });
+        $(modal).modal('show');
+    }
+}
 

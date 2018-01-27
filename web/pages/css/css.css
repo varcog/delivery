@@ -80,8 +80,37 @@ body {
 
 .tabla_general .fa{
     font-size: 18px;
+    cursor: pointer;
 }
 
 .tabla_general .fa+.fa {
     margin-left: 6px;
 }
+
+
+/* *****************************************************************************
+                                IMAGENES
+***************************************************************************** */
+
+.fs_img {
+    margin-left: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.fs_img_20 {
+    font-size: 20px;
+}
+
+.fs_img_50 {
+    font-size: 50px;
+}
+
+.x200{
+    width: 200px;
+    height: 200px;
+}
+
+/*.fs_img + .fs_img{
+
+}*/
