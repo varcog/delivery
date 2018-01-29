@@ -310,9 +310,19 @@ function removeError(selector) {
 
     };
 
+    $.fn.solo_numeros = function () {
+        return $(this).off('input').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    };
+
 
 })(jQuery);
 
+/* *****************************************************************************
+ *                              MODAL
+ * *****************************************************************************
+ */
 var modales_cola = [];
 function openModal(modal) {
     if (modales_cola.length > 0) {

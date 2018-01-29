@@ -42,6 +42,9 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
                 case "todos_productos":
                     html = todos_productos(request, con);
                     break;
+                case "aumentar_stock":
+                    html = aumentar_stock(request, con);
+                    break;
             }
             con.commit();
             response.getWriter().write(html);
@@ -103,6 +106,10 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
     }
 
     private String todos_productos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        return new PRODUCTO(con).todos().toString();
+    }
+    
+    private String aumentar_stock(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         return new PRODUCTO(con).todos().toString();
     }
 
