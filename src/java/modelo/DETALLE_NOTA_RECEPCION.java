@@ -1,6 +1,7 @@
 package modelo;
 
 import conexion.Conexion;
+import java.sql.SQLException;
 
 public class DETALLE_NOTA_RECEPCION {
 
@@ -60,6 +61,21 @@ public class DETALLE_NOTA_RECEPCION {
     public void setCon(Conexion con) {
         this.con = con;
     }
+
     ////////////////////////////////////////////////////////////////////////////
+    public int insert() throws SQLException {
+        String consulta = "INSERT INTO public.\"DETALLE_NOTA_RECEPCION\"(\n"
+                + "	\"ID_NOTA_RECEPCION\", \"ID_PRODUCTO\", \"CANTIDAD\")\n"
+                + "	VALUES (?, ?, ?);";
+        int id = con.EjecutarInsert(consulta, "ID", ID_NOTA_RECEPCION, ID_PRODUCTO, CANTIDAD);
+        this.ID = id;
+        return id;
+    }
+
+    public void delete() throws SQLException {
+        String consulta = "DELETE FROM public.\"DETALLE_NOTA_RECEPCION\"\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, ID);
+    }
 
 }

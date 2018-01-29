@@ -3,11 +3,16 @@ package controller;
 import conexion.Conexion;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import modelo.DETALLE_NOTA_RECEPCION;
+import modelo.NOTA_RECEPCION;
 import modelo.PRODUCTO;
 import modelo.USUARIO;
 import org.json.JSONException;
@@ -108,9 +113,24 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
     private String todos_productos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         return new PRODUCTO(con).todos().toString();
     }
-    
+
     private String aumentar_stock(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        return new PRODUCTO(con).todos().toString();
+        int lista_size = Integer.parseInt(request.getParameter("lista_size"));
+        NOTA_RECEPCION nr = new NOTA_RECEPCION(0, 0, new Date(), id_sucursal, con.getUsuario().getID(), con.getUsuario().getID());
+        nr.setCon(con);
+        int id_nota = nr.insert();
+        int id_producto, cantidad;
+        DETALLE_NOTA_RECEPCION dnr = new DETALLE_NOTA_RECEPCION(con);
+        for (int i = 0; i < lista_size; i++) {
+            id_producto = Integer.parseInt(request.getParameter("productos[0][id]"));
+            cantidad = Integer.parseInt(request.getParameter("productos[0][cantidad]"));
+            dnr.setCANTIDAD(cantidad);
+            dnr.setID_NOTA_RECEPCION(id_nota);
+            dnr.setID_PRODUCTO(id_producto);
+            dnr.setID(0);
+            dnr.insert();
+        }
+        return true + "";
     }
 
 }

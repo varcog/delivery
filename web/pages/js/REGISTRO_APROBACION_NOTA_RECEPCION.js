@@ -102,6 +102,7 @@ function verificar_aumentar_stock() {
     }
     if (lista_select.length > 0) {
         $("#cuerpo_stock_add_verify").html(html);
+        openModal('#aumentarStockVerifyModal');
     } else {
         $("#alertModalLabel").text("Alerta");
         $("#alertModalText").text("Por lo menos un producto debe tener cantidad mayor a 0.");
@@ -112,8 +113,10 @@ function verificar_aumentar_stock() {
 
 function aumentar_stock() {
     mostrarCargando();
-    $.post(url, {evento: "aumentar_stock", productos: lista_select}, function (resp) {
-        ocultarCargando();
+    $.post(url, {evento: "aumentar_stock", productos: lista_select, lista_size: lista_select.length}, function (resp) {
+        cerrar_modal();
+        todos();
+        cerrar_modal();
     });
 }
 
