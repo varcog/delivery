@@ -62,7 +62,7 @@ function REPORTE_PDF() {
             if(contenidoPdf.colorSubtitulo){
                 doc.setTextColor(contenidoPdf.colorSubtitulo);
             }
-            doc.text(contenidoPdf.subtitulo, 306.14, 42.52, "center");
+            doc.text(contenidoPdf.subtitulo, anchoPagina / 2, 42.52, "center");
             doc.setTextColor(0,0,0);
             if (typeof contenidoPdf.descripcion === 'function') {
                 top_tabla = contenidoPdf.descripcion(doc, 19.84, 65.20, margen);
@@ -92,21 +92,24 @@ function REPORTE_PDF() {
         var dataAuto;
         var totalPagesExp = "{total_pages_count_string}";
         var fecha = getFechaActualCompleta();
-        var anchoPagina = 612;
+//        var anchoPagina = 612;
         var orientacionHoja = contenidoPdf.orientacion || "p";
-        if (orientacionHoja === "l") {
-            anchoPagina = 792;
-        }
-        var doc = new jsPDF(orientacionHoja, "pt", "letter");
+        // letter | legal
+        var pagina = contenidoPdf.pagina || "letter";
+//        if (orientacionHoja === "l") {
+//            anchoPagina = 792;
+//        }
+        var doc = new jsPDF(orientacionHoja, "pt", pagina);
+        var anchoPagina = doc.internal.pageSize.width;
         var top_tabla = 70;
         if (typeof contenidoPdf.descripcion === 'function') {
             header();
-            doc = new jsPDF(orientacionHoja, "pt", "letter");
+            doc = new jsPDF(orientacionHoja, "pt", pagina);
         }
         var tam_pie_pag = 0;
         if (typeof contenidoPdf.piePagina === 'function') {
             tam_pie_pag = contenidoPdf.piePagina();
-            doc = new jsPDF(orientacionHoja, "pt", "letter");
+            doc = new jsPDF(orientacionHoja, "pt", pagina);
         }
 
 
@@ -509,7 +512,7 @@ if (jsPDF && jsPDF.API) {
                 if(contenidoPdf.colorSubtitulo){
                     doc.setTextColor(contenidoPdf.colorSubtitulo);
                 }
-                doc.text(contenidoPdf.subtitulo, 306.14, 42.52, "center");
+                doc.text(contenidoPdf.subtitulo, anchoPagina / 2, 42.52, "center");
                 doc.setTextColor(0,0,0);
                 if (typeof contenidoPdf.descripcion === 'function') {
                     top_tabla = contenidoPdf.descripcion(doc, 19.84, 65.20, margen);
@@ -538,22 +541,25 @@ if (jsPDF && jsPDF.API) {
             var dataAuto;
             var totalPagesExp = "{total_pages_count_string}";
             var fecha = getFechaActualCompleta();
-            var anchoPagina = 612;
+//            var anchoPagina = 612;
             var orientacionHoja = contenidoPdf.orientacion || "p";
-            if (orientacionHoja === "l") {
-                anchoPagina = 792;
-            }
-            var doc = new jsPDF(orientacionHoja, "pt", "letter");
-            var docAux = new jsPDF(orientacionHoja, "pt", "letter");
+            // letter | legal
+            var pagina = contenidoPdf.pagina || "letter";
+//            if (orientacionHoja === "l") {
+//                anchoPagina = 792;
+//            }
+            var doc = new jsPDF(orientacionHoja, "pt", pagina);
+            var anchoPagina = doc.internal.pageSize.width;
+            var docAux = new jsPDF(orientacionHoja, "pt", pagina);
             var top_tabla = 70;
             if (typeof contenidoPdf.descripcion === 'function') {
                 header();
-                doc = new jsPDF(orientacionHoja, "pt", "letter");
+                doc = new jsPDF(orientacionHoja, "pt", pagina);
             }
             var tam_pie_pag = 0;
             if (typeof contenidoPdf.piePagina === 'function') {
                 tam_pie_pag = contenidoPdf.piePagina();
-                doc = new jsPDF(orientacionHoja, "pt", "letter");
+                doc = new jsPDF(orientacionHoja, "pt", pagina);
             }
             var startY = top_tabla;
             var tablas = contenidoPdf.tablas;
