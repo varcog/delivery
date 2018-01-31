@@ -26,6 +26,7 @@ function todos(estado) {
 
 function productoFilaHtml(obj) {
     var tr = "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
+    tr += "<td>" + (obj.CODIGO || "") + "</td>";
     tr += "<td>" + (obj.NOMBRE || "") + "</td>";
     tr += "<td class='text-right'>" + obj.PRECIO_COMPRA + "</td>";
     tr += "<td class='text-right'>" + obj.PRECIO_VENTA + "</td>";
@@ -60,6 +61,7 @@ function pop_aumentar_stock() {
         var json = $.parseJSON(resp);
         $.each(json, function (i, obj) {
             html += "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
+            html += "<td>" + (obj.CODIGO || "") + "</td>";
             html += "<td>" + (obj.NOMBRE || "") + "</td>";
             html += "<td class='text-center'>";
             if (obj.IMAGEN)
@@ -86,12 +88,13 @@ function verificar_aumentar_stock() {
     lista_select = [];
     var html = "";
     for (var i = 0; i < ll; i++) {
-        input = $(tabla_stock_add.cell(i, 2).node()).children();
+        input = $(tabla_stock_add.cell(i, 3).node()).children();
         valor = parseInt(input.val());
         if (!isNaN(valor) && valor > 0) {
             html += "<tr>";
             html += "<td>" + tabla_stock_add.cell(i, 0).data() + "</td>";
-            html += "<td class='text-center'>" + tabla_stock_add.cell(0, 1).data() + "</td>";
+            html += "<td>" + tabla_stock_add.cell(i, 1).data() + "</td>";
+            html += "<td class='text-center'>" + tabla_stock_add.cell(0, 2).data() + "</td>";
             html += "<td class='text-right'>" + valor + "</td>";
             html += "</tr>";
             lista_select.push({
@@ -115,9 +118,153 @@ function aumentar_stock() {
     mostrarCargando();
     $.post(url, {evento: "aumentar_stock", productos: lista_select, lista_size: lista_select.length}, function (resp) {
         cerrar_modal();
-        todos();
         cerrar_modal();
+        if (resp === "false") {
+            $("#alertModalLabel").text("Alerta");
+            $("#alertModalText").text("No se guardo, Intentelo de Nuevo.");
+            openModal('#alertModal');
+        } else {
+            var json = $.parseJSON(resp);
+            nota_recepcion_pdf(json);
+        }
+        todos();
+
     });
+}
+
+var errorPDF = "NO SE HA PODIDO CREAR EL PDF.\n INTENTELO MAS TARDE.";
+var reporte = new REPORTE_PDF();
+function nota_recepcion_pdf(json) {
+    var estiloColumnas = {}, contenidoPieTabla = {}, separadores = [], pos_selec = [];
+    var cantColumnas;
+
+    var getHead = function () {
+        var head = [];
+        head.push({title: "Código", dataKey: "codigo"});
+        head.push({title: "Descripción", dataKey: "descripcion"});
+        head.push({title: "Cantidad", dataKey: "cantidad"});
+        return head;
+    };
+
+    var getBody = function () {
+        var body = [];
+        var fila;
+        $.each(json.DETALLE, function (i, obj) {
+            fila = {
+                codigo: obj.CODIGO,
+                descripcion: obj.NOMBRE,
+                cantidad: obj.CANTIDAD
+            };
+            body.push(fila);
+        });
+        return body;
+    };
+
+    var descripcion = function (doc, x, y, margen) {
+        var x = margen.left;
+        var aux;
+        var ancho = doc.internal.pageSize.width;
+        var colm_2 = 80
+        aux = 0;
+        doc.setFontSize(10);
+        doc.setFontType("bold");
+        doc.text(x, y, "Sucursal:");
+        doc.setFontType("normal");
+        aux = escribir_varias_lineas_pdf(doc, json.SUCURSAL, doc.internal.getFontSize(), x + colm_2, y, ancho - colm_2 - margen.left - margen.rigth, "left", "pt");
+        y += aux + 10;
+        doc.setFontType("bold");
+        doc.text(x, y, "Dirección:");
+        doc.setFontType("normal");
+        aux = escribir_varias_lineas_pdf(doc, json.DIRECCION, doc.internal.getFontSize(), x + colm_2, y, ancho - colm_2 - margen.left - margen.rigth, "left", "pt");
+        y += aux + 10;
+        doc.setFontType("bold");
+        doc.text(x, y, "Entregado a:");
+        doc.setFontType("normal");
+        aux = escribir_varias_lineas_pdf(doc, json.USUARIO_ENTREGA, doc.internal.getFontSize(), x + colm_2, y, ancho - colm_2 - margen.left - margen.rigth, "left", "pt");
+        y += aux + 10;
+        doc.setFontType("bold");
+        doc.text(x, y, "Recibido de:");
+        doc.setFontType("normal");
+        aux = escribir_varias_lineas_pdf(doc, json.USUARIO_RECIBE, doc.internal.getFontSize(), x + colm_2, y, ancho - colm_2 - margen.left - margen.rigth, "left", "pt");
+        y += aux + 10;
+        doc.setFontType("bold");
+        doc.text(x, y, "Fecha:");
+        doc.setFontType("normal");
+        aux = escribir_varias_lineas_pdf(doc, json.FECHA, doc.internal.getFontSize(), x + colm_2, y, ancho - colm_2 - margen.left - margen.rigth, "left", "pt");
+        y += aux + 10;
+        return y;
+    };
+
+    var contenido = {
+        titulo: "NOTA DE RECEPCION",
+        subtitulo: "Nro. " + json.NUMERO,
+        colorSubtitulo: "#FF0000",
+        descripcion: descripcion,
+        mostrarFecha: true,
+        cabeceraTabla: getHead(),
+        cuerpotabla: getBody(),
+//        pieTabla: pieTabla,
+//        orientacion: "l",
+//        colSpan: separadores,
+        estiloCabecera: {
+            fillStyle: 'DF',
+            fillColor: [192, 192, 192],
+            fontSize: 10
+        },
+        estiloCuerpo: {
+            fontSize: 10
+        }
+//        afterTable: function (doc, y, margen, footer, data) {
+//            var texto = $("textarea[name=observacion_general]").val();
+//            doc.setFontSize(7);
+//            var ancho = doc.internal.pageSize.width;
+//            var res = alto_varias_lineas(doc, texto, 7, ancho - 50 - margen.left - margen.right, "pt");
+//            var aux = res.alto;
+//            var sx = false;
+//            if (aux + y > doc.internal.pageSize.height - margen.bottom) {
+//                doc.addPage();
+//                sx = true;
+//                y = 50;
+//            }
+//            doc.setFontType("bold");
+//            y -= 10;
+//            doc.text(margen.left, y, "OBSERVACIÓN: ");
+//            doc.setFontType("normal");
+//            doc.text(margen.left + 60, y, res.texto);
+//            y += 15;
+//            doc.setFontType("bold");
+//            doc.text(margen.left, y, "OPCION ELEGIDA: ");
+//            doc.setFontType("normal");
+//            doc.rect(margen.left + 70, y - 10, 150, 15);
+//            var x_ = 150 + 110;
+//            doc.setFontType("bold");
+//            doc.text(x_, y, "REVISADO POR:");
+//            x_ += 60;
+//            doc.setFontType("normal");
+//            doc.text(x_, y, $("select[name=rev_por]").find("option:selected").text());
+//            x_ += 160;
+//            doc.setFontType("bold");
+//            doc.text(x_, y, "APROBADO POR:");
+//            x_ += 63;
+//            doc.setFontType("normal");
+//            doc.text(x_, y, $("select[name=apro_por]").find("option:selected").text());
+//            y += 15;
+//            doc.setFontType("bold");
+//            doc.text(margen.left, y, "Se adjunta cotizaciones.");
+//            if (sx) {
+//                data.pageCount = data.pageCount + 1;
+//                footer(data);
+//            }
+//        }
+//        estiloColumnas: estiloColumnas
+    };
+
+    reporte.setContenidoPdf(contenido);
+    reporte.setListenerNotificarTermino(function (estado) {
+        if (!estado) {
+        }
+    });
+    reporte.generarPDF();
 }
 
 function pop_reducir_stock() {

@@ -1,12 +1,13 @@
 package controller;
 
 import conexion.Conexion;
+import static controller.REGISTRAR_PRODUCTO_CONTROLLER.ERROR_CODIGO_REPETIDO;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,11 +18,8 @@ import modelo.USUARIO;
 import org.json.JSONException;
 import util.SIS_EVENTOS;
 
-@MultipartConfig
-@WebServlet(name = "REGISTRAR_PRODUCTO_CONTROLLER", urlPatterns = {"/REGISTRAR_PRODUCTO_CONTROLLER"})
-public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
-
-    public static final String ERROR_CODIGO_REPETIDO = "CODIGO_REPETIDO";
+@WebServlet(name = "PUNTO_VENTA_CONTROLLER", urlPatterns = {"/PUNTO_VENTA_CONTROLLER"})
+public class PUNTO_VENTA_CONTROLLER extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -42,8 +40,8 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             String html = "";
             String evento = request.getParameter("evento");
             switch (evento) {
-                case "todos":
-                    html = todos(request, con);
+                case "init":
+                    html = init(request, con);
                     break;
                 case "guardar_producto":
                     html = guardar_producto(request, con);
@@ -102,7 +100,7 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+    private String init(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         return new PRODUCTO(con).todos().toString();
     }
 

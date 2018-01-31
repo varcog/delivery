@@ -11,6 +11,7 @@ import org.json.JSONObject;
 public class PRODUCTO {
 
     private int ID;
+    private String CODIGO;
     private String NOMBRE;
     private String IMAGEN;
     private double PRECIO_COMPRA;
@@ -21,8 +22,9 @@ public class PRODUCTO {
         this.con = con;
     }
 
-    public PRODUCTO(int ID, String NOMBRE, String IMAGEN, double PRECIO_COMPRA, double PRECIO_VENTA) {
+    public PRODUCTO(int ID, String CODIGO, String NOMBRE, String IMAGEN, double PRECIO_COMPRA, double PRECIO_VENTA) {
         this.ID = ID;
+        this.CODIGO = CODIGO;
         this.NOMBRE = NOMBRE;
         this.IMAGEN = IMAGEN;
         this.PRECIO_COMPRA = PRECIO_COMPRA;
@@ -35,6 +37,14 @@ public class PRODUCTO {
 
     public void setID(int ID) {
         this.ID = ID;
+    }
+
+    public String getCODIGO() {
+        return CODIGO;
+    }
+
+    public void setCODIGO(String CODIGO) {
+        this.CODIGO = CODIGO;
     }
 
     public String getNOMBRE() {
@@ -80,18 +90,18 @@ public class PRODUCTO {
     ////////////////////////////////////////////////////////////////////////////
     public int insert() throws SQLException {
         String consulta = "INSERT INTO public.\"PRODUCTO\"(\n"
-                + "	\"NOMBRE\", \"PRECIO_COMPRA\", \"PRECIO_VENTA\", \"IMAGEN\")\n"
-                + "	VALUES (?, ?, ?, ?)";
-        int id = con.EjecutarInsert(consulta, "ID", NOMBRE, PRECIO_COMPRA, PRECIO_VENTA, IMAGEN);
+                + "	\"CODIGO\", \"NOMBRE\", \"PRECIO_COMPRA\", \"PRECIO_VENTA\", \"IMAGEN\")\n"
+                + "	VALUES (?, ?, ?, ?, ?)";
+        int id = con.EjecutarInsert(consulta, "ID", CODIGO, NOMBRE, PRECIO_COMPRA, PRECIO_VENTA, IMAGEN);
         this.ID = id;
         return id;
     }
 
     public void update() throws SQLException {
         String consulta = "UPDATE public.\"PRODUCTO\"\n"
-                + "	SET \"NOMBRE\"=?, \"PRECIO_COMPRA\"=?, \"PRECIO_VENTA\"=?, \"IMAGEN\"=?\n"
+                + "	SET \"CODIGO\"=?, \"NOMBRE\"=?, \"PRECIO_COMPRA\"=?, \"PRECIO_VENTA\"=?, \"IMAGEN\"=?\n"
                 + "	WHERE \"ID\"=?;";
-        con.EjecutarSentencia(consulta, NOMBRE, PRECIO_COMPRA, PRECIO_VENTA, IMAGEN, ID);
+        con.EjecutarSentencia(consulta, CODIGO, NOMBRE, PRECIO_COMPRA, PRECIO_VENTA, IMAGEN, ID);
     }
 
     public void delete() throws SQLException {
@@ -102,7 +112,7 @@ public class PRODUCTO {
 
     public JSONArray todos() throws SQLException, JSONException {
         String consulta = "SELECT * FROM public.\"PRODUCTO\"\n"
-                + "ORDER BY \"NOMBRE\" ASC ";
+                + "ORDER BY \"CODIGO\" ASC ";
         PreparedStatement ps = con.statamet(consulta);
         ResultSet rs = ps.executeQuery();
         JSONArray json = new JSONArray();
@@ -110,6 +120,7 @@ public class PRODUCTO {
         while (rs.next()) {
             obj = new JSONObject();
             obj.put("ID", rs.getInt("ID"));
+            obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
@@ -121,7 +132,7 @@ public class PRODUCTO {
         return json;
     }
 
-    public PRODUCTO buscar(int id) throws SQLException, JSONException {
+    public PRODUCTO buscar(int id) throws SQLException {
         String consulta = "SELECT * FROM public.\"PRODUCTO\"\n"
                 + "	WHERE \"ID\"=?;";
         PreparedStatement ps = con.statametObject(consulta, id);
@@ -129,6 +140,7 @@ public class PRODUCTO {
         PRODUCTO p = new PRODUCTO(con);
         if (rs.next()) {
             p.setID(rs.getInt("ID"));
+            p.setCODIGO(rs.getString("CODIGO"));
             p.setNOMBRE(rs.getString("NOMBRE"));
             p.setIMAGEN(rs.getString("IMAGEN"));
             p.setPRECIO_COMPRA(rs.getDouble("PRECIO_COMPRA"));
@@ -141,6 +153,7 @@ public class PRODUCTO {
     public JSONObject toJSONObject() throws SQLException, JSONException {
         JSONObject obj = new JSONObject();
         obj.put("ID", ID);
+        obj.put("CODIGO", CODIGO);
         obj.put("NOMBRE", NOMBRE);
         obj.put("IMAGEN", IMAGEN);
         obj.put("PRECIO_COMPRA", PRECIO_COMPRA);
@@ -150,6 +163,7 @@ public class PRODUCTO {
 
     public JSONArray todos_Almacen(int id_sucursal) throws SQLException, JSONException {
         String consulta = "SELECT PRODUCTO.\"ID\",\n"
+                + "	   PRODUCTO.\"CODIGO\",\n"
                 + "	   PRODUCTO.\"NOMBRE\",\n"
                 + "        PRODUCTO.\"PRECIO_COMPRA\",\n"
                 + "        PRODUCTO.\"PRECIO_VENTA\",\n"
@@ -177,6 +191,7 @@ public class PRODUCTO {
         while (rs.next()) {
             obj = new JSONObject();
             obj.put("ID", rs.getInt("ID"));
+            obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
@@ -191,6 +206,7 @@ public class PRODUCTO {
 
     public JSONArray stock_Almacen(int id_sucursal) throws SQLException, JSONException {
         String consulta = "SELECT PRODUCTO.\"ID\",\n"
+                + "	   PRODUCTO.\"CODIGO\",\n"
                 + "	   PRODUCTO.\"NOMBRE\",\n"
                 + "        PRODUCTO.\"PRECIO_COMPRA\",\n"
                 + "        PRODUCTO.\"PRECIO_VENTA\",\n"
@@ -218,6 +234,7 @@ public class PRODUCTO {
         while (rs.next()) {
             obj = new JSONObject();
             obj.put("ID", rs.getInt("ID"));
+            obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
@@ -230,4 +247,19 @@ public class PRODUCTO {
         return json;
     }
 
+//    public static void main(String[] args) throws SQLException {
+//        Conexion con = new Conexion();
+//        PRODUCTO p = new PRODUCTO(con).buscar(4);
+//        p.setCODIGO("COD0001");
+//        try {
+//            p.update();
+//        } catch (Exception e) {
+//            if (e.getMessage().contains("uq_producto_codigo")) {
+//                System.out.println("true");
+//            } else {
+//                System.out.println(e.getMessage());
+//            }
+//        }
+//
+//    }
 }

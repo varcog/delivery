@@ -4,8 +4,6 @@ import conexion.Conexion;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -122,15 +120,15 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
         int id_producto, cantidad;
         DETALLE_NOTA_RECEPCION dnr = new DETALLE_NOTA_RECEPCION(con);
         for (int i = 0; i < lista_size; i++) {
-            id_producto = Integer.parseInt(request.getParameter("productos[0][id]"));
-            cantidad = Integer.parseInt(request.getParameter("productos[0][cantidad]"));
+            id_producto = Integer.parseInt(request.getParameter("productos[" + i + "][id]"));
+            cantidad = Integer.parseInt(request.getParameter("productos[" + i + "][cantidad]"));
             dnr.setCANTIDAD(cantidad);
             dnr.setID_NOTA_RECEPCION(id_nota);
             dnr.setID_PRODUCTO(id_producto);
             dnr.setID(0);
             dnr.insert();
         }
-        return true + "";
+        return nr.notaRececpcionPDF(id_nota).toString();
     }
 
 }

@@ -47,13 +47,13 @@ function REPORTE_PDF() {
 
     this.generarPDF = function () {
 
-        if (logoEmpresa === undefined) {
-            cargarLogoEmpresa(this.generarPDF);
-            return;
-        }
+//        if (logoEmpresa === undefined) {
+//            cargarLogoEmpresa(this.generarPDF);
+//            return;
+//        }
 
         var header = function (data) {
-            doc.addImage(logoEmpresa, 'PNG', 19.84, 19.84, 141.73, 28.35);
+//            doc.addImage(logoEmpresa, 'PNG', 19.84, 19.84, 141.73, 28.35);
             doc.setFontSize(12);
             doc.setFontType("bold");
             doc.text(contenidoPdf.titulo, anchoPagina / 2, 28.35, "center");

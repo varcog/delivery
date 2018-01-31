@@ -1,7 +1,12 @@
 package modelo;
 
 import conexion.Conexion;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DETALLE_NOTA_RECEPCION {
 
@@ -76,6 +81,33 @@ public class DETALLE_NOTA_RECEPCION {
         String consulta = "DELETE FROM public.\"DETALLE_NOTA_RECEPCION\"\n"
                 + "	WHERE \"ID\"=?;";
         con.EjecutarSentencia(consulta, ID);
+    }
+
+    public JSONArray detalleNotaRecepcionPdf(int id_nota_recepcion) throws SQLException, JSONException {
+        String consulta = "SELECT \"DETALLE_NOTA_RECEPCION\".\"ID\", \n"
+                + "       \"PRODUCTO\".\"CODIGO\", \n"
+                + "       \"PRODUCTO\".\"NOMBRE\", \n"
+                + "       \"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\"\n"
+                + "	FROM public.\"DETALLE_NOTA_RECEPCION\"\n"
+                + "    	 INNER JOIN public.\"PRODUCTO\" ON \"PRODUCTO\".\"ID\" = \"DETALLE_NOTA_RECEPCION\".\"ID_PRODUCTO\"\n"
+                + "    WHERE \"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = ?;\n"
+                + "    ";
+        PreparedStatement ps = con.statametObject(consulta, id_nota_recepcion);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("CODIGO", rs.getString("CODIGO"));
+            obj.put("NOMBRE", rs.getString("NOMBRE"));
+            obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+
     }
 
 }

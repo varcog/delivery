@@ -4,6 +4,7 @@ import conexion.Conexion;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -111,25 +112,38 @@ public class NOTA_RECEPCION {
         con.EjecutarSentencia(consulta, ID);
     }
 
-    public JSONArray buscarDetalleimpresionNota() throws SQLException, JSONException {
-        String consulta = "SELECT * FROM public.\"NOTA_RECEPCION\"\n"
-                + "ORDER BY \"NOMBRE\" ASC ";
-        PreparedStatement ps = con.statamet(consulta);
+    public JSONObject notaRececpcionPDF(int id_nota_recepcion) throws SQLException, JSONException {
+        String consulta = "SELECT \"NOTA_RECEPCION\".\"ID\",\n"
+                + "	   to_char(\"NOTA_RECEPCION\".\"FECHA\", 'DD/MM/YYYY') AS FECHA,\n"
+                + "        \"NOTA_RECEPCION\".\"NUMERO\",\n"
+                + "        \"SUCURSAL\".\"DESCRIPCION\" AS SUCURSAL,\n"
+                + "        \"SUCURSAL\".\"DIRECCION\",\n"
+                + "        USUARIO_ENTREGA.\"NOMBRES\" AS USUARIO_ENTREGA,\n"
+                + "        USUARIO_RECIBE.\"NOMBRES\" AS USUARIO_RECIBE\n"
+                + "	FROM public.\"NOTA_RECEPCION\" \n"
+                + "    	INNER JOIN public.\"SUCURSAL\" ON \"NOTA_RECEPCION\".\"ID_SUCURSAL\" = \"SUCURSAL\".\"ID\"\n"
+                + "        INNER JOIN public.\"USUARIO\" AS USUARIO_ENTREGA ON \"NOTA_RECEPCION\".\"ID_USUARIO_ENTREGA\" = USUARIO_ENTREGA.\"ID\"\n"
+                + "        INNER JOIN public.\"USUARIO\" AS USUARIO_RECIBE ON \"NOTA_RECEPCION\".\"ID_USUARIO_RECIBE\" = USUARIO_RECIBE.\"ID\"\n"
+                + "    WHERE \"NOTA_RECEPCION\".\"ID\" = ?\n"
+                + "";
+        PreparedStatement ps = con.statametObject(consulta, id_nota_recepcion);
         ResultSet rs = ps.executeQuery();
-        JSONArray json = new JSONArray();
-        JSONObject obj;
-        while (rs.next()) {
-            obj = new JSONObject();
-            obj.put("ID", rs.getInt("ID"));
-            obj.put("NOMBRE", rs.getString("NOMBRE"));
-            obj.put("IMAGEN", rs.getString("IMAGEN"));
-            obj.put("PRECIO_COMPRA", rs.getDouble("PRECIO_COMPRA"));
-            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
-            json.put(obj);
+        JSONObject json = new JSONObject();
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (rs.next()) {
+            json.put("FECHA", rs.getString("FECHA"));
+            json.put("SUCURSAL", rs.getString("SUCURSAL"));
+            json.put("DIRECCION", rs.getString("DIRECCION"));
+            json.put("USUARIO_ENTREGA", rs.getString("USUARIO_ENTREGA"));
+            json.put("USUARIO_RECIBE", rs.getString("USUARIO_RECIBE"));
+            json.put("NUMERO", rs.getInt("NUMERO"));
+            json.put("HOY", f.format(new Date()));
+            json.put("DETALLE", new DETALLE_NOTA_RECEPCION(con).detalleNotaRecepcionPdf(id_nota_recepcion));
         }
         rs.close();
         ps.close();
         return json;
+
     }
 
 }
