@@ -141,8 +141,6 @@ public class PUNTO_VENTA_CONTROLLER extends HttpServlet {
             p.setCODIGO(codigo);
             p.setNOMBRE(descripcion);
             p.setIMAGEN(imagen);
-            p.setPRECIO_COMPRA(precio_compra);
-            p.setPRECIO_VENTA(precio_venta);
             try {
                 p.update();
             } catch (Exception e) {
@@ -162,7 +160,7 @@ public class PUNTO_VENTA_CONTROLLER extends HttpServlet {
             }
             return p.toJSONObject().toString();
         } else {
-            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, precio_compra, precio_venta);
+            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, 0);
             p.setCon(con);
             try {
                 id = p.insert();

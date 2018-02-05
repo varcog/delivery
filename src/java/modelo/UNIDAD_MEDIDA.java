@@ -36,6 +36,13 @@ public class UNIDAD_MEDIDA {
         this.con = con;
     }
 
+    public UNIDAD_MEDIDA(int ID, String DESCRIPCION, String ABREVIACION, Conexion con) {
+        this.ID = ID;
+        this.DESCRIPCION = DESCRIPCION;
+        this.ABREVIACION = ABREVIACION;
+        this.con = con;
+    }
+
     public int getID() {
         return ID;
     }
@@ -108,5 +115,44 @@ public class UNIDAD_MEDIDA {
         rs.close();
         ps.close();
         return json;
+    }
+
+    public UNIDAD_MEDIDA buscar(int id) throws SQLException {
+        String consulta = "SELECT * FROM public.\"UNIDAD_MEDIDA\"\n"
+                + "	WHERE \"ID\"=?;";
+        PreparedStatement ps = con.statametObject(consulta, id);
+        ResultSet rs = ps.executeQuery();
+        UNIDAD_MEDIDA um = new UNIDAD_MEDIDA(con);
+        if (rs.next()) {
+            um.setID(rs.getInt("ID"));
+            um.setDESCRIPCION(rs.getString("DESCRIPCION"));
+            um.setABREVIACION(rs.getString("ABREVIACION"));
+            return um;
+        }
+        return null;
+    }
+
+    public JSONObject buscarJSON(int id) throws SQLException, JSONException {
+        String consulta = "SELECT * FROM public.\"UNIDAD_MEDIDA\"\n"
+                + "	WHERE \"ID\"=?;";
+        PreparedStatement ps = con.statametObject(consulta, id);
+        ResultSet rs = ps.executeQuery();
+        JSONObject obj = new JSONObject();
+        while (rs.next()) {
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            obj.put("ABREVIACION", rs.getString("ABREVIACION"));
+        }
+        rs.close();
+        ps.close();
+        return obj;
+    }
+
+    public JSONObject toJSONObject() throws JSONException {
+        JSONObject obj = new JSONObject();
+        obj.put("ID", ID);
+        obj.put("DESCRIPCION", DESCRIPCION);
+        obj.put("ABREVIACION", ABREVIACION);
+        return obj;
     }
 }
