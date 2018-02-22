@@ -11,7 +11,10 @@ $(document).ready(function () {
             $.each(json, function (menu, submenus) {
                 html += "<li class='treeview'>";
                 html += "<a href='#'>";
-                html += "<i class='fa fa-pie-chart'></i>";
+                // fa-asterisk
+                // fa-certificate
+                // fa-circle
+                html += "<i class='fa fa-asterisk'></i>";
                 html += "<span>" + menu + "</span>";
                 html += "<span class='pull-right-container'><i class='fa fa-angle-left pull-right'></i></span>";
                 html += "</a>";

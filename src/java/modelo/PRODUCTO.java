@@ -87,7 +87,7 @@ public class PRODUCTO {
         return id;
     }
 
-    public void update() throws SQLException {
+    public void update() throws SQLException  {
         String consulta = "UPDATE public.\"PRODUCTO\"\n"
                 + "	SET \"CODIGO\"=?, \"NOMBRE\"=?, \"UNIDAD_MEDIDA\"=?, \"IMAGEN\"=?\n"
                 + "	WHERE \"ID\"=?;";

@@ -78,6 +78,77 @@ public class SUB_MENU {
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    public int insert() throws SQLException {
+        String consulta = "INSERT INTO public.\"SUB_MENU\"(\n"
+                + "	\"DESCRIPCION\", \"IMAGEN\", \"URL\", \"ID_MENU\")\n"
+                + "	VALUES (?,?,?,?)";
+        int id = con.EjecutarInsert(consulta, "ID", DESCRIPCION, IMAGEN, URL, ID_MENU);
+        this.ID = id;
+        return id;
+    }
+
+    public void update() throws SQLException {
+        String consulta = "UPDATE public.\"SUB_MENU\"\n"
+                + "	SET \"DESCRIPCION\"=?, \"IMAGEN\"=?, \"URL\"=?, \"ID_MENU\"=?\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, DESCRIPCION, IMAGEN, URL, ID_MENU, ID);
+    }
+
+    public void delete() throws SQLException {
+        String consulta = "DELETE FROM public.\"SUB_MENU\"\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, ID);
+    }
+
+    public JSONArray todos() throws SQLException, JSONException {
+        String consulta = "SELECT * FROM public.\"SUB_MENU\"\n"
+                + "ORDER BY \"DESCRIPCION\" ASC ";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("URL", rs.getString("URL"));
+            obj.put("ID_MENU", rs.getInt("ID_MENU"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
+    public SUB_MENU buscar(int id) throws SQLException {
+        String consulta = "SELECT * FROM public.\"SUB_MENU\"\n"
+                + "	WHERE \"ID\"=?;";
+        PreparedStatement ps = con.statametObject(consulta, id);
+        ResultSet rs = ps.executeQuery();
+        SUB_MENU m = new SUB_MENU(con);
+        if (rs.next()) {
+            m.setID(rs.getInt("ID"));
+            m.setDESCRIPCION(rs.getString("DESCRIPCION"));
+            m.setIMAGEN(rs.getString("IMAGEN"));
+            m.setURL(rs.getString("URL"));
+            m.setID_MENU(rs.getInt("ID_MENU"));
+            return m;
+        }
+        return null;
+    }
+
+    public JSONObject toJSONObject() throws SQLException, JSONException {
+        JSONObject obj = new JSONObject();
+        obj.put("ID", ID);
+        obj.put("DESCRIPCION", DESCRIPCION);
+        obj.put("IMAGEN", IMAGEN);
+        obj.put("URL", URL);
+        obj.put("ID_MENU", ID_MENU);
+        return obj;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     public JSONArray bucarSubMenuXCargo(int idCargo) throws SQLException, JSONException {
         String consulta = "SELECT \"SUB_MENU\".\"DESCRIPCION\",\n"
                 + "               \"SUB_MENU\".\"URL\",\n"

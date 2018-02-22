@@ -4,9 +4,13 @@ import conexion.Conexion;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import util.StringMD;
 
 public class USUARIO {
@@ -149,6 +153,103 @@ public class USUARIO {
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    public int insert() throws SQLException {
+        java.sql.Date fn = FECHA_NACIMIENTO == null ? null : new java.sql.Date(FECHA_NACIMIENTO.getTime());
+        FECHA_CREACION = new Date();
+        String consulta = "INSERT INTO public.\"USUARIO\"(\n"
+                + "	\"USUARIO\",\"PASSWORD\",\"NOMBRES\",\"APELLIDOS\",\"FECHA_NACIMIENTO\",\"FECHA_CREACION\",\"CI\",\"SEXO\",\"ID_CARGO\",\"ID_USUARIO_CREADOR\",\"ESTADO\")\n"
+                + "	VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        int id = con.EjecutarInsert(consulta, "ID", USUARIO, PASSWORD, NOMBRES, APELLIDOS, fn, new java.sql.Date(FECHA_CREACION.getTime()), CI, SEXO, ID_CARGO, ID_USUARIO_CREADOR, true);
+        this.ID = id;
+        return id;
+    }
+
+    public void update() throws SQLException {
+        java.sql.Date fn = FECHA_NACIMIENTO == null ? null : new java.sql.Date(FECHA_NACIMIENTO.getTime());
+        String consulta = "UPDATE public.\"USUARIO\"\n"
+                + "	SET \"USUARIO\"=?,\"PASSWORD\"=?,\"NOMBRES\"=?,\"APELLIDOS\"=?,\"FECHA_NACIMIENTO\"=?,\"CI\"=?,\"SEXO\"=?,\"ID_CARGO\"=?,\"ESTADO\"=?\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, USUARIO, PASSWORD, NOMBRES, APELLIDOS, fn, CI, SEXO, ID_CARGO, ESTADO, ID);
+    }
+
+    public void delete() throws SQLException {
+        String consulta = "DELETE FROM public.\"USUARIO\"\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, ID);
+    }
+
+    public JSONArray todos() throws SQLException, JSONException {
+        String consulta = "SELECT * FROM public.\"USUARIO\"\n"
+                + "ORDER BY \"USUARIO\" ASC ";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+        java.sql.Date aux;
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("USUARIO", rs.getString("USUARIO"));
+            obj.put("NOMBRES", rs.getString("NOMBRES"));
+            obj.put("APELLIDOS", rs.getString("APELLIDOS"));
+            aux = rs.getDate("FECHA_NACIMIENTO");
+            obj.put("FECHA_NACIMIENTO", aux == null ? "" : f.format(aux));
+            aux = rs.getDate("FECHA_CREACION");
+            obj.put("FECHA_CREACION", aux == null ? "" : f.format(aux));
+            obj.put("CI", rs.getString("CI"));
+            obj.put("SEXO", rs.getString("SEXO"));
+            obj.put("ID_CARGO", rs.getInt("ID_CARGO"));
+            obj.put("ID_USUARIO_CREADOR", rs.getInt("ID_USUARIO_CREADOR"));
+            obj.put("ESTADO", rs.getBoolean("ESTADO"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
+    public USUARIO buscar(int id) throws SQLException {
+        String consulta = "SELECT * FROM public.\"USUARIO\"\n"
+                + "	WHERE \"ID\"=?;";
+        PreparedStatement ps = con.statametObject(consulta, id);
+        ResultSet rs = ps.executeQuery();
+        USUARIO u = new USUARIO(con);
+        if (rs.next()) {
+            u.setID(rs.getInt("ID"));
+            u.setUSUARIO(rs.getString("USUARIO"));
+            u.setNOMBRES(rs.getString("NOMBRES"));
+            u.setAPELLIDOS(rs.getString("APELLIDOS"));
+            u.setFECHA_NACIMIENTO(rs.getDate("FECHA_NACIMIENTO"));
+            u.setFECHA_CREACION(rs.getDate("FECHA_CREACION"));
+            u.setCI(rs.getString("CI"));
+            u.setSEXO(rs.getString("SEXO"));
+            u.setID_CARGO(rs.getInt("ID_CARGO"));
+            u.setID_USUARIO_CREADOR(rs.getInt("ID_USUARIO_CREADOR"));
+            u.setESTADO(rs.getBoolean("ESTADO"));
+            return u;
+        }
+        return null;
+    }
+
+    public JSONObject toJSONObject() throws SQLException, JSONException {
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+        JSONObject obj = new JSONObject();
+        obj.put("ID", ID);
+        obj.put("USUARIO", USUARIO);
+        obj.put("NOMBRES", NOMBRES);
+        obj.put("APELLIDOS", APELLIDOS);
+        obj.put("FECHA_NACIMIENTO", FECHA_NACIMIENTO == null ? "" : f.format(FECHA_NACIMIENTO));
+        obj.put("FECHA_CREACION", FECHA_CREACION == null ? "" : f.format(FECHA_CREACION));
+        obj.put("CI", CI);
+        obj.put("SEXO", SEXO);
+        obj.put("ID_CARGO", ID_CARGO);
+        obj.put("ID_USUARIO_CREADOR", ID_USUARIO_CREADOR);
+        obj.put("ESTADO", ESTADO);
+        return obj;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     public USUARIO Buscar(String usr, String pass) throws SQLException {
         pass = StringMD.getStringMessageDigest(pass, StringMD.SHA512);
         String consulta = "select * from public.\"USUARIO\" where \"USUARIO\" = (?) and \"PASSWORD\" = (?) and \"ESTADO\"=true";
@@ -186,12 +287,17 @@ public class USUARIO {
     }
 
     public static void main(String[] args) throws SQLException {
-        Conexion con = Conexion.getConeccion();
-        USUARIO u = new USUARIO(con);
-        if (u.Buscar("delivery", "delivery") == null) {
-            System.out.println("false");
-        } else {
-            System.out.println("true");
-        }
+//        Conexion con = Conexion.getConeccion();
+//        USUARIO u = new USUARIO(con);
+//        if (u.Buscar("delivery", "delivery") == null) {
+//            System.out.println("false");
+//        } else {
+//            System.out.println("true");
+//        }
+
+        Date dia = new Date();
+        java.sql.Date name = null;
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+        System.out.println(f.format(name));
     }
 }
