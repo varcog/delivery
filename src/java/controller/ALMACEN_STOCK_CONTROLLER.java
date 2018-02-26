@@ -1,13 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import conexion.Conexion;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.servlet.ServletException;
@@ -17,17 +11,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.DETALLE_NOTA_RECEPCION;
 import modelo.INSUMO;
+import modelo.INSUMO_GRUPO;
 import modelo.NOTA_RECEPCION;
-import modelo.PRODUCTO;
 import modelo.USUARIO;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
  * @author benja
  */
-@WebServlet(name = "ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER", urlPatterns = {"/ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER"})
-public class ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
+@WebServlet(name = "ALMACEN_STOCK_CONTROLLER", urlPatterns = {"/ALMACEN_STOCK_CONTROLLER"})
+public class ALMACEN_STOCK_CONTROLLER extends HttpServlet {
 
     private int id_sucursal = 1;
 
@@ -53,12 +48,12 @@ public class ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpS
                 case "todos":
                     html = todos(request, con);
                     break;
-                case "todos_productos":
-                    html = todos_productos(request, con);
+                case "todos_insumos":
+                    html = todos_insumos(request, con);
                     break;
-//                case "aumentar_stock":
-//                    html = aumentar_stock(request, con);
-//                    break;
+                case "aumentar_stock":
+                    html = aumentar_stock(request, con);
+                    break;
             }
             con.commit();
             response.getWriter().write(html);
@@ -109,7 +104,7 @@ public class ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpS
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-    
+
     private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         int estado = Integer.parseInt(request.getParameter("estado"));
         if (estado == 0) {
@@ -119,27 +114,34 @@ public class ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpS
         }
     }
 
-    private String todos_productos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        return new PRODUCTO(con).todos().toString();
+    private String todos_insumos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        JSONObject json = new JSONObject();
+        json.put("INSUMO", new INSUMO(con).todos());
+        json.put("INSUMO_GRUPO", new INSUMO_GRUPO(con).todos());
+        return json.toString();
     }
 
-//    private String aumentar_stock(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-//        int lista_size = Integer.parseInt(request.getParameter("lista_size"));
-//        NOTA_RECEPCION nr = new NOTA_RECEPCION(0, 0, new Date(), id_sucursal, con.getUsuario().getID(), con.getUsuario().getID());
-//        nr.setCon(con);
-//        int id_nota = nr.insert();
-//        int id_producto, cantidad;
-//        DETALLE_NOTA_RECEPCION dnr = new DETALLE_NOTA_RECEPCION(con);
-//        for (int i = 0; i < lista_size; i++) {
-//            id_producto = Integer.parseInt(request.getParameter("productos[" + i + "][id]"));
-//            cantidad = Integer.parseInt(request.getParameter("productos[" + i + "][cantidad]"));
-//            dnr.setCANTIDAD(cantidad);
-//            dnr.setID_NOTA_RECEPCION(id_nota);
-//            dnr.setID_PRODUCTO(id_producto);
-//            dnr.setID(0);
-//            dnr.insert();
-//        }
-//        return nr.notaRececpcionPDF(id_nota).toString();
-//    }
-
+    private String aumentar_stock(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        int lista_size = Integer.parseInt(request.getParameter("lista_size"));
+        NOTA_RECEPCION nr = new NOTA_RECEPCION(0, 0, new Date(), id_sucursal, con.getUsuario().getID(), con.getUsuario().getID(), 0);
+        nr.setCon(con);
+        int id_nota = nr.insert();
+        int id_insumo, cantidad;
+        boolean grupo;
+        DETALLE_NOTA_RECEPCION dnr = new DETALLE_NOTA_RECEPCION(con);
+        for (int i = 0; i < lista_size; i++) {
+            id_insumo = Integer.parseInt(request.getParameter("productos[" + i + "][id]"));
+            cantidad = Integer.parseInt(request.getParameter("productos[" + i + "][cantidad]"));
+            grupo = Boolean.parseBoolean(request.getParameter("productos[" + i + "][grupo]"));
+            if (grupo) {
+                dnr.setCANTIDAD(cantidad);
+                dnr.setID_NOTA_RECEPCION(id_nota);
+                dnr.setID_INSUMO(id_insumo);
+                dnr.setID_INSUMO_GRUPO(0);
+                dnr.setID(0);
+                dnr.insert();
+            }
+        }
+        return nr.notaRececpcionPDF(id_nota).toString();
+    }
 }

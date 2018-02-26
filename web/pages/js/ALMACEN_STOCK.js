@@ -1,4 +1,4 @@
-var url = "../ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER";
+var url = "../ALMACEN_STOCK_CONTROLLER";
 var tabla, tabla_stock_add, tabla_stock_add_verify;
 var html_aux;
 $(document).ready(function () {
@@ -16,7 +16,7 @@ function todos(estado) {
         var json = $.parseJSON(resp);
         var html = "";
         $.each(json, function (i, obj) {
-            html += productoFilaHtml(obj);
+            html += insumoFilaHtml(obj);
         });
         $("#cuerpo").html(html);
         tabla = $('#tabla').DataTable({"language": {"url": "../plugins/datatables/i18n/spanish.json"}});
@@ -24,16 +24,11 @@ function todos(estado) {
     });
 }
 
-function productoFilaHtml(obj) {
-    var tr = "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
+function insumoFilaHtml(obj) {
+    var tr = "<tr data-id='" + obj.ID + "' class='insumo_" + obj.ID + "'>";
     tr += "<td>" + (obj.CODIGO || "") + "</td>";
-    tr += "<td>" + (obj.NOMBRE || "") + "</td>";
-    tr += "<td class='text-right'>" + obj.PRECIO_COMPRA + "</td>";
-    tr += "<td class='text-right'>" + obj.PRECIO_VENTA + "</td>";
-    tr += "<td class='text-center'>";
-    if (obj.IMAGEN)
-        tr += "<img src='" + obj.IMAGEN + "' class='x70' />";
-    tr += "</td>";
+    tr += "<td>" + (obj.DESCRIPCION || "") + "</td>";
+    tr += "<td>" + (obj.UNIDAD_MEDIDA || "") + "</td>";
     tr += "<td class='text-right'>" + obj.CANTIDAD + "</td>";
     tr += "</tr>";
     return tr;
@@ -56,23 +51,30 @@ function ver_todos_stock(ele) {
 function pop_aumentar_stock() {
     mostrarCargando();
     tabla_stock_add.destroy();
-    $.post(url, {evento: "todos_productos"}, function (resp) {
+    $.post(url, {evento: "todos_insumos"}, function (resp) {
         var html = "";
         var json = $.parseJSON(resp);
-        $.each(json, function (i, obj) {
-            html += "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
+        $.each(json.INSUMO, function (i, obj) {
+            html += "<tr data-id='" + obj.ID + "' class='in_" + obj.ID + "'>";
             html += "<td>" + (obj.CODIGO || "") + "</td>";
-            html += "<td>" + (obj.NOMBRE || "") + "</td>";
-            html += "<td class='text-center'>";
-            if (obj.IMAGEN)
-                html += "<img src='" + obj.IMAGEN + "' class='x70' />";
-            html += "</td>";
+            html += "<td>" + (obj.DESCRIPCION || "") + "</td>";
+            html += "<td>" + (obj.UNIDAD_MEDIDA || "") + "</td>";
             html += "<td><input type='number' data-id='" + obj.ID + "' class='stock_cantidad text-right' value='0'/></td>";
+            html += "<td><input type='text' data-id='" + obj.ID + "' class='stock_precio text-right numero_decimal' value='0'/></td>";
+            html += "</tr>";
+        });
+        $.each(json.INSUMO_GRUPO, function (i, obj) {
+            html += "<tr data-id='" + obj.ID + "' class='ing_" + obj.ID + " grupo'>";
+            html += "<td></td>";
+            html += "<td>" + (obj.DESCRIPCION || "") + "</td>";
+            html += "<td><input type='number' data-id='" + obj.ID + "' class='stock_cantidad text-right grupo' value='0'/></td>";
+            html += "<td><input type='text' data-id='" + obj.ID + "' class='stock_precio text-right numero_decimal' value='0'/></td>";
             html += "</tr>";
         });
         html_aux = html;
         $("#cuerpo_stock_add").html(html_aux);
         $(".stock_cantidad").solo_numeros();
+        formato_decimal("#cuerpo_stock_add .numero_decimal");
         tabla_stock_add = $('#tabla_stock_add').DataTable({"language": {"url": "../plugins/datatables/i18n/spanish.json"}});
         openModal('#aumentarStockModal');
         ocultarCargando();
@@ -88,18 +90,18 @@ function verificar_aumentar_stock() {
     lista_select = [];
     var html = "";
     for (var i = 0; i < ll; i++) {
-        input = $(tabla_stock_add.cell(i, 3).node()).children();
+        input = $(tabla_stock_add.cell(i, 2).node()).children();
         valor = parseInt(input.val());
         if (!isNaN(valor) && valor > 0) {
             html += "<tr>";
             html += "<td>" + tabla_stock_add.cell(i, 0).data() + "</td>";
             html += "<td>" + tabla_stock_add.cell(i, 1).data() + "</td>";
-            html += "<td class='text-center'>" + tabla_stock_add.cell(0, 2).data() + "</td>";
             html += "<td class='text-right'>" + valor + "</td>";
             html += "</tr>";
             lista_select.push({
                 id: input.data("id"),
-                cantidad: valor
+                cantidad: valor,
+                grupo: input.is(".grupo")
             });
         }
     }
@@ -323,7 +325,7 @@ function guardar_producto() {
                         $(".producto_" + id_aux).attr("data-imagen", json.IMAGEN);
                     tabla.rows().invalidate();
                 } else {
-                    tabla.row.add($(productoFilaHtml(json))).draw(false);
+                    tabla.row.add($(insumoFilaHtml(json))).draw(false);
                 }
 
                 $("#alertModalLabel").text("Información");

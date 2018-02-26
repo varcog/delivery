@@ -195,7 +195,7 @@ public class INSUMO {
                 + "             INSUMO.\"CODIGO\",\n"
                 + "             INSUMO.\"DESCRIPCION\",\n"
                 + "             \"UNIDAD_MEDIDA\".\"DESCRIPCION\"\n"
-                + "    ORDER BY PRODUCTO.\"DESCRIPCION\" ASC;\n"
+                + "    ORDER BY INSUMO.\"DESCRIPCION\" ASC;\n"
                 + "    \n"
                 + "";
         PreparedStatement ps = con.statamet(consulta);
@@ -218,24 +218,26 @@ public class INSUMO {
     }
 
     public JSONArray stock_Almacen(int id_sucursal) throws SQLException, JSONException {
-        String consulta = "SELECT PRODUCTO.\"ID\",\n"
-                + "	   PRODUCTO.\"CODIGO\",\n"
-                + "	   PRODUCTO.\"NOMBRE\",\n"
-                + "        PRODUCTO.\"UNIDAD_MEDIDA\",\n"
-                + "        PRODUCTO.\"IMAGEN\",\n"
+        String consulta = "SELECT INSUMO.\"ID\",\n"
+                + "	   INSUMO.\"CODIGO\",\n"
+                + "	   INSUMO.\"DESCRIPCION\",\n"
+                + "        \"UNIDAD_MEDIDA\".\"DESCRIPCION\" AS UNIDAD_MEDIDA,\n"
                 + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
-                + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
+                + "	FROM public.\"INSUMO\" AS INSUMO\n"
                 + "         INNER JOIN (\n"
-                + "             SELECT \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_PRODUCTO\",\n"
+                + "             SELECT \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_INSUMO\",\n"
                 + "					\"public\".\"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\"\n"
                 + "			   	FROM \"public\".\"DETALLE_NOTA_RECEPCION\"\n"
                 + "					INNER JOIN \"public\".\"NOTA_RECEPCION\" ON \"public\".\"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = \"public\".\"NOTA_RECEPCION\".\"ID\"\n"
                 + "					INNER JOIN \"public\".\"SUCURSAL\" ON \"public\".\"NOTA_RECEPCION\".\"ID_SUCURSAL\" = \"public\".\"SUCURSAL\".\"ID\" AND \"public\".\"SUCURSAL\".\"ID\" = ? \n"
                 + "		 ) AS CANTIDAD\n"
-                + "         ON PRODUCTO.\"ID\" = CANTIDAD.\"ID_PRODUCTO\"\n"
-                + "    GROUP BY PRODUCTO.\"ID\",\n"
-                + "	   		 PRODUCTO.\"NOMBRE\"\n"
-                + "    ORDER BY PRODUCTO.\"NOMBRE\" ASC;\n"
+                + "         ON INSUMO.\"ID\" = CANTIDAD.\"ID_INSUMO\"\n"
+                + "         LEFT JOIN public.\"UNIDAD_MEDIDA\" ON \"UNIDAD_MEDIDA\".\"ID\" = INSUMO.\"ID_UNIDAD_MEDIDA\" \n"
+                + "    GROUP BY INSUMO.\"ID\",\n"
+                + "             INSUMO.\"CODIGO\",\n"
+                + "             INSUMO.\"DESCRIPCION\",\n"
+                + "             \"UNIDAD_MEDIDA\".\"DESCRIPCION\"\n"
+                + "    ORDER BY INSUMO.\"NOMBRE\" DESCRIPCION;\n"
                 + "    \n"
                 + "";
         PreparedStatement ps = con.statamet(consulta);
@@ -247,10 +249,49 @@ public class INSUMO {
             obj = new JSONObject();
             obj.put("ID", rs.getInt("ID"));
             obj.put("CODIGO", rs.getString("CODIGO"));
-            obj.put("NOMBRE", rs.getString("NOMBRE"));
-            obj.put("IMAGEN", rs.getString("IMAGEN"));
-            obj.put("UNIDAD_MEDIDA", rs.getInt("UNIDAD_MEDIDA"));
+            obj.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            obj.put("UNIDAD_MEDIDA", rs.getString("UNIDAD_MEDIDA"));
             obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
+    public JSONArray todosUnidadMedidaPrecio() throws SQLException, JSONException {
+        String consulta = "SELECT \"INSUMO\".*,\n"
+                + "       \"UNIDAD_MEDIDA\".\"DESCRIPCION\",\n"
+                + "       ULTIMO_PRECIO.\"PRECIO\"\n"
+                + "FROM public.\"INSUMO\"\n"
+                + "     LEFT JOIN public.\"UNIDAD_MEDIDA\" ON \"UNIDAD_MEDIDA\".\"ID\" = \"INSUMO\".\"ID_UNIDAD_MEDIDA\"\n"
+                + "     LEFT JOIN (\n"
+                + "        SELECT \"DETALLE_NOTA_RECEPCION\".\"ID_INSUMO\", \n"
+                + "               \"DETALLE_NOTA_RECEPCION\".\"PRECIO\"\n"
+                + "        FROM (\n"
+                + "            SELECT \"DETALLE_NOTA_RECEPCION\".\"ID_INSUMO\", \n"
+                + "                   MAX(\"NOTA_RECEPCION\".\"FECHA\") AS FECHA, \n"
+                + "                   MAX(\"NOTA_RECEPCION\".\"ID\") AS ID_NOTA_RECEPCION\n"
+                + "                FROM public.\"DETALLE_NOTA_RECEPCION\"\n"
+                + "                     INNER JOIN public.\"NOTA_RECEPCION\" ON \"NOTA_RECEPCION\".\"ID\" = \"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\"\n"
+                + "                GROUP BY \"DETALLE_NOTA_RECEPCION\".\"ID_INSUMO\"\n"
+                + "            ) MAXIMO,\n"
+                + "            public.\"DETALLE_NOTA_RECEPCION\"\n"
+                + "        WHERE  \"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = MAXIMO.ID_NOTA_RECEPCION\n"
+                + "               AND MAXIMO.\"ID_INSUMO\" = \"DETALLE_NOTA_RECEPCION\".\"ID_INSUMO\"\n"
+                + "        ) ULTIMO_PRECIO ON ULTIMO_PRECIO.\"ID_INSUMO\" = \"INSUMO\".\"ID\"\n"
+                + "ORDER BY \"CODIGO\" ASC";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("CODIGO", rs.getString("CODIGO"));
+            obj.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            obj.put("UNIDAD_MEDIDA", rs.getString("UNIDAD_MEDIDA"));
+            obj.put("PRECIO", rs.getDouble("PRECIO"));
             json.put(obj);
         }
         rs.close();
