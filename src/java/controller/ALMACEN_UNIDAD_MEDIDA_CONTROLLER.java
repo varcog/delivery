@@ -3,22 +3,21 @@ package controller;
 import conexion.Conexion;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import modelo.DETALLE_NOTA_RECEPCION;
-import modelo.NOTA_RECEPCION;
-import modelo.PRODUCTO;
+import modelo.UNIDAD_MEDIDA;
 import modelo.USUARIO;
 import org.json.JSONException;
 
-@WebServlet(name = "REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER", urlPatterns = {"/REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER"})
-public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
-
-    private int id_sucursal = 1;
+/**
+ *
+ * @author benja
+ */
+@WebServlet(name = "ALMACEN_UNIDAD_MEDIDA_CONTROLLER", urlPatterns = {"/ALMACEN_UNIDAD_MEDIDA_CONTROLLER"})
+public class ALMACEN_UNIDAD_MEDIDA_CONTROLLER extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -39,15 +38,15 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
             String html = "";
             String evento = request.getParameter("evento");
             switch (evento) {
-                case "todos":
-                    html = todos(request, con);
+                case "init":
+                    html = init(request, con);
                     break;
-                case "todos_productos":
-                    html = todos_productos(request, con);
+                case "guardar_undidad_medida":
+                    html = guardar_undidad_medida(request, con);
                     break;
-//                case "aumentar_stock":
-//                    html = aumentar_stock(request, con);
-//                    break;
+                case "eliminar_unidad_medida":
+                    html = eliminar_unidad_medida(request, con);
+                    break;
             }
             con.commit();
             response.getWriter().write(html);
@@ -99,36 +98,36 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        int estado = Integer.parseInt(request.getParameter("estado"));
-        if (estado == 0) {
-            return new PRODUCTO(con).todos_Almacen(id_sucursal).toString();
+    private String init(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        return new UNIDAD_MEDIDA(con).todos().toString();
+    }
+
+    private String guardar_undidad_medida(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        String descripcion = request.getParameter("descripcion");
+        String abreviacion = request.getParameter("abreviacion");
+        if (id > 0) {
+            UNIDAD_MEDIDA um = new UNIDAD_MEDIDA(con).buscar(id);
+            if (um == null) {
+                return "false";
+            }
+            um.setDESCRIPCION(descripcion);
+            um.setABREVIACION(abreviacion);
+            um.update();
+            return um.toJSONObject().toString();
         } else {
-            return new PRODUCTO(con).stock_Almacen(id_sucursal).toString();
+            UNIDAD_MEDIDA um = new UNIDAD_MEDIDA(id, descripcion, abreviacion, con);
+            um.insert();
+            return um.toJSONObject().toString();
         }
     }
 
-    private String todos_productos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        return new PRODUCTO(con).todos().toString();
+    private String eliminar_unidad_medida(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        UNIDAD_MEDIDA c = new UNIDAD_MEDIDA(con);
+        c.setID(id);
+        c.delete();
+        return "true";
     }
-
-//    private String aumentar_stock(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-//        int lista_size = Integer.parseInt(request.getParameter("lista_size"));
-//        NOTA_RECEPCION nr = new NOTA_RECEPCION(0, 0, new Date(), id_sucursal, con.getUsuario().getID(), con.getUsuario().getID());
-//        nr.setCon(con);
-//        int id_nota = nr.insert();
-//        int id_producto, cantidad;
-//        DETALLE_NOTA_RECEPCION dnr = new DETALLE_NOTA_RECEPCION(con);
-//        for (int i = 0; i < lista_size; i++) {
-//            id_producto = Integer.parseInt(request.getParameter("productos[" + i + "][id]"));
-//            cantidad = Integer.parseInt(request.getParameter("productos[" + i + "][cantidad]"));
-//            dnr.setCANTIDAD(cantidad);
-//            dnr.setID_NOTA_RECEPCION(id_nota);
-//            dnr.setID_PRODUCTO(id_producto);
-//            dnr.setID(0);
-//            dnr.insert();
-//        }
-//        return nr.notaRececpcionPDF(id_nota).toString();
-//    }
 
 }

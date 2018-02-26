@@ -15,18 +15,29 @@ public class SUB_MENU {
     private String IMAGEN;
     private String URL;
     private int ID_MENU;
+    private boolean VISIBLE;
     private Conexion con;
 
     public SUB_MENU(Conexion con) {
         this.con = con;
     }
 
-    public SUB_MENU(int ID, String DESCRIPCION, String IMAGEN, String URL, int ID_MENU) {
+    public SUB_MENU(int ID, String DESCRIPCION, String IMAGEN, String URL, int ID_MENU, boolean VISIBLE) {
         this.ID = ID;
         this.DESCRIPCION = DESCRIPCION;
         this.IMAGEN = IMAGEN;
         this.URL = URL;
         this.ID_MENU = ID_MENU;
+        this.VISIBLE = VISIBLE;
+    }
+
+    public SUB_MENU(int ID, String DESCRIPCION, String URL, int ID_MENU, Conexion con) {
+        this.ID = ID;
+        this.DESCRIPCION = DESCRIPCION;
+        this.URL = URL;
+        this.ID_MENU = ID_MENU;
+        this.VISIBLE = true;
+        this.con = con;
     }
 
     public int getID() {
@@ -69,6 +80,14 @@ public class SUB_MENU {
         this.ID_MENU = ID_MENU;
     }
 
+    public boolean isVISIBLE() {
+        return VISIBLE;
+    }
+
+    public void setVISIBLE(boolean VISIBLE) {
+        this.VISIBLE = VISIBLE;
+    }
+
     public Conexion getCon() {
         return con;
     }
@@ -89,9 +108,9 @@ public class SUB_MENU {
 
     public void update() throws SQLException {
         String consulta = "UPDATE public.\"SUB_MENU\"\n"
-                + "	SET \"DESCRIPCION\"=?, \"IMAGEN\"=?, \"URL\"=?, \"ID_MENU\"=?\n"
+                + "	SET \"DESCRIPCION\"=?, \"IMAGEN\"=?, \"URL\"=?, \"ID_MENU\"=?, \"VISIBLE\"=?\n"
                 + "	WHERE \"ID\"=?;";
-        con.EjecutarSentencia(consulta, DESCRIPCION, IMAGEN, URL, ID_MENU, ID);
+        con.EjecutarSentencia(consulta, DESCRIPCION, IMAGEN, URL, ID_MENU, VISIBLE, ID);
     }
 
     public void delete() throws SQLException {
@@ -114,6 +133,7 @@ public class SUB_MENU {
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("URL", rs.getString("URL"));
             obj.put("ID_MENU", rs.getInt("ID_MENU"));
+            obj.put("VISIBLE", rs.getBoolean("VISIBLE"));
             json.put(obj);
         }
         rs.close();
@@ -133,6 +153,7 @@ public class SUB_MENU {
             m.setIMAGEN(rs.getString("IMAGEN"));
             m.setURL(rs.getString("URL"));
             m.setID_MENU(rs.getInt("ID_MENU"));
+            m.setVISIBLE(rs.getBoolean("VISIBLE"));
             return m;
         }
         return null;
@@ -145,18 +166,20 @@ public class SUB_MENU {
         obj.put("IMAGEN", IMAGEN);
         obj.put("URL", URL);
         obj.put("ID_MENU", ID_MENU);
+        obj.put("VISIBLE", VISIBLE);
         return obj;
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    public JSONArray bucarSubMenuXCargo(int idCargo) throws SQLException, JSONException {
+    public JSONArray bucarSubMenuXCargoVisible(int idCargo) throws SQLException, JSONException {
         String consulta = "SELECT \"SUB_MENU\".\"DESCRIPCION\",\n"
                 + "               \"SUB_MENU\".\"URL\",\n"
                 + "               \"SUB_MENU\".\"IMAGEN\"\n"
                 + "	FROM public.\"SUB_MENU\",\n"
                 + "         public.\"PERMISO\"\n"
                 + "    WHERE \"PERMISO\".\"ID_CARGO\" = " + idCargo + "\n"
-                + "    	  AND \"PERMISO\".\"ID_SUB_MENU\" = \"SUB_MENU\".\"ID\"\n";
+                + "    	  AND \"PERMISO\".\"ID_SUB_MENU\" = \"SUB_MENU\".\"ID\"\n"
+                + "    	  AND \"SUB_MENU\".\"VISIBLE\" = true\n";
         PreparedStatement ps = con.statamet(consulta);
         ResultSet rs = ps.executeQuery();
         JSONArray json = new JSONArray();
@@ -177,10 +200,40 @@ public class SUB_MENU {
     public JSONArray bucarSubMenuXMenu(int idMenu) throws SQLException, JSONException {
         String consulta = "SELECT \"SUB_MENU\".\"DESCRIPCION\",\n"
                 + "               \"SUB_MENU\".\"URL\",\n"
-                + "               \"SUB_MENU\".\"IMAGEN\"\n"
+                + "               \"SUB_MENU\".\"IMAGEN\",\n"
+                + "               \"SUB_MENU\".\"VISIBLE\",\n"
+                + "               \"SUB_MENU\".\"ID\"\n"
                 + "	FROM public.\"SUB_MENU\"\n"
+                + "    WHERE \"SUB_MENU\".\"ID_MENU\" = " + idMenu + "\n";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("DESCRIPCION", rs.getString("DESCRIPCION"));
+            obj.put("URL", rs.getString("URL"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("VISIBLE", rs.getBoolean("VISIBLE"));
+            obj.put("ID", rs.getInt("ID"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+
+    }
+
+    public JSONArray bucarSubMenuXMenuXCargoVisible(int idMenu, int id_cargo) throws SQLException, JSONException {
+        String consulta = "SELECT DISTINCT \"SUB_MENU\".\"DESCRIPCION\",\n"
+                + "               \"SUB_MENU\".\"URL\",\n"
+                + "               \"SUB_MENU\".\"IMAGEN\"\n"
+                + "	FROM public.\"SUB_MENU\", public.\"PERMISO\"\n"
                 + "    WHERE \"SUB_MENU\".\"ID_MENU\" = " + idMenu + "\n"
-                + "";
+                + "          AND \"PERMISO\".\"ID_CARGO\" = " + id_cargo + "\n"
+                + "          AND \"PERMISO\".\"ID_SUB_MENU\" = \"SUB_MENU\".\"ID\"\n"
+                + "          AND \"SUB_MENU\".\"VISIBLE\" = true\n"
+                + "    ORDER BY \"SUB_MENU\".\"DESCRIPCION\"";
         PreparedStatement ps = con.statamet(consulta);
         ResultSet rs = ps.executeQuery();
         JSONArray json = new JSONArray();
@@ -196,5 +249,12 @@ public class SUB_MENU {
         ps.close();
         return json;
 
+    }
+
+    public void update_visible(int id, boolean visible) throws SQLException {
+        String consulta = "UPDATE public.\"SUB_MENU\"\n"
+                + "	SET \"VISIBLE\"=?\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, visible, id);
     }
 }

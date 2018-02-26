@@ -8,9 +8,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import modelo.CARGO;
 import modelo.MENU;
 import modelo.USUARIO;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 @WebServlet(name = "INGRESO_CONTROLLER", urlPatterns = {"/INGRESO_CONTROLLER"})
 public class INGRESO_CONTROLLER extends HttpServlet {
@@ -20,7 +22,7 @@ public class INGRESO_CONTROLLER extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/plain");
         USUARIO usuario = ((USUARIO) request.getSession().getAttribute("usr"));
-        if(usuario == null){
+        if (usuario == null) {
             response.getWriter().write("false");
             return;
         }
@@ -36,6 +38,9 @@ public class INGRESO_CONTROLLER extends HttpServlet {
             switch (evento) {
                 case "obtener_menu":
                     html = obtener_menu(request, con);
+                    break;
+                case "obtener_ingreso":
+                    html = obtener_ingreso(request, con);
                     break;
             }
             con.commit();
@@ -91,7 +96,21 @@ public class INGRESO_CONTROLLER extends HttpServlet {
     private String obtener_menu(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         USUARIO usuario = con.getUsuario();
         MENU menu = new MENU(con);
-        return menu.bucarMenuYSubMenuXCargo(usuario.getID_CARGO()).toString();
+        return menu.bucarMenuYSubMenuXCargoVisible(usuario.getID_CARGO()).toString();
+    }
+
+    private String obtener_ingreso(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        USUARIO usuario = con.getUsuario();
+        MENU menu = new MENU(con);
+        JSONObject json = new JSONObject();
+        json.put("MENU", menu.bucarMenuYSubMenuXCargoVisible(usuario.getID_CARGO()));
+        USUARIO u = con.getUsuario();
+        json.put("USUARIO", u.getNombreCompleto());
+        CARGO c = new CARGO(con).buscar(u.getID_CARGO());
+        if (c != null) {
+            json.put("CARGO", c.getDESCRIPCION());
+        }
+        return json.toString();
     }
 
 }

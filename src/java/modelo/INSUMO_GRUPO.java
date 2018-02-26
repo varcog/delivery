@@ -8,23 +8,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MENU {
+public class INSUMO_GRUPO {
 
     private int ID;
     private String DESCRIPCION;
     private Conexion con;
 
-    public MENU(Conexion con) {
+    public INSUMO_GRUPO(Conexion con) {
         this.con = con;
     }
 
-    public MENU(int ID, String DESCRIPCION) {
+    public INSUMO_GRUPO(int ID, String DESCRIPCION) {
         this.ID = ID;
         this.DESCRIPCION = DESCRIPCION;
-
     }
 
-    public MENU(int ID, String DESCRIPCION, Conexion con) {
+    public INSUMO_GRUPO(int ID, String DESCRIPCION, Conexion con) {
         this.ID = ID;
         this.DESCRIPCION = DESCRIPCION;
         this.con = con;
@@ -56,7 +55,7 @@ public class MENU {
 
     ////////////////////////////////////////////////////////////////////////////
     public int insert() throws SQLException {
-        String consulta = "INSERT INTO public.\"MENU\"(\n"
+        String consulta = "INSERT INTO public.\"INSUMO_GRUPO\"(\n"
                 + "	\"DESCRIPCION\")\n"
                 + "	VALUES (?)";
         int id = con.EjecutarInsert(consulta, "ID", DESCRIPCION);
@@ -65,20 +64,20 @@ public class MENU {
     }
 
     public void update() throws SQLException {
-        String consulta = "UPDATE public.\"MENU\"\n"
+        String consulta = "UPDATE public.\"INSUMO_GRUPO\"\n"
                 + "	SET \"DESCRIPCION\"=?\n"
                 + "	WHERE \"ID\"=?;";
         con.EjecutarSentencia(consulta, DESCRIPCION, ID);
     }
 
     public void delete() throws SQLException {
-        String consulta = "DELETE FROM public.\"MENU\"\n"
+        String consulta = "DELETE FROM public.\"INSUMO_GRUPO\"\n"
                 + "	WHERE \"ID\"=?;";
         con.EjecutarSentencia(consulta, ID);
     }
 
     public JSONArray todos() throws SQLException, JSONException {
-        String consulta = "SELECT * FROM public.\"MENU\"\n"
+        String consulta = "SELECT * FROM public.\"INSUMO_GRUPO\"\n"
                 + "ORDER BY \"DESCRIPCION\" ASC ";
         PreparedStatement ps = con.statamet(consulta);
         ResultSet rs = ps.executeQuery();
@@ -95,12 +94,12 @@ public class MENU {
         return json;
     }
 
-    public MENU buscar(int id) throws SQLException {
-        String consulta = "SELECT * FROM public.\"MENU\"\n"
+    public INSUMO_GRUPO buscar(int id) throws SQLException {
+        String consulta = "SELECT * FROM public.\"INSUMO_GRUPO\"\n"
                 + "	WHERE \"ID\"=?;";
         PreparedStatement ps = con.statametObject(consulta, id);
         ResultSet rs = ps.executeQuery();
-        MENU m = new MENU(con);
+        INSUMO_GRUPO m = new INSUMO_GRUPO(con);
         if (rs.next()) {
             m.setID(rs.getInt("ID"));
             m.setDESCRIPCION(rs.getString("DESCRIPCION"));
@@ -117,41 +116,4 @@ public class MENU {
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    public JSONObject bucarMenuYSubMenuTodos() throws SQLException, JSONException {
-        String consulta = "SELECT * FROM public.\"MENU\"\n"
-                + "ORDER BY \"DESCRIPCION\" ASC ";
-        PreparedStatement ps = con.statamet(consulta);
-        ResultSet rs = ps.executeQuery();
-        JSONObject json = new JSONObject();
-        SUB_MENU sub_menu = new SUB_MENU(con);
-        while (rs.next()) {
-            json.put(rs.getString("DESCRIPCION"), sub_menu.bucarSubMenuXMenu(rs.getInt("ID")));
-        }
-        rs.close();
-        ps.close();
-        return json;
-    }
-
-    public JSONObject bucarMenuYSubMenuXCargoVisible(int idCargo) throws SQLException, JSONException {
-        String consulta = "SELECT DISTINCT \"MENU\".\"ID\",\n"
-                + "	     \"MENU\".\"DESCRIPCION\"\n"
-                + "	FROM public.\"MENU\", \n"
-                + "    	     public.\"SUB_MENU\",\n"
-                + "          public.\"PERMISO\"\n"
-                + "    WHERE \"PERMISO\".\"ID_CARGO\" = " + idCargo + "\n"
-                + "    	     AND \"PERMISO\".\"ID_SUB_MENU\" = \"SUB_MENU\".\"ID\"\n"
-                + "          AND \"SUB_MENU\".\"ID_MENU\" = \"MENU\".\"ID\""
-                + "    	     AND \"SUB_MENU\".\"VISIBLE\" = true\n"
-                + "    ORDER BY \"MENU\".\"DESCRIPCION\"";
-        PreparedStatement ps = con.statamet(consulta);
-        ResultSet rs = ps.executeQuery();
-        JSONObject json = new JSONObject();
-        SUB_MENU sub_menu = new SUB_MENU(con);
-        while (rs.next()) {
-            json.put(rs.getString("DESCRIPCION"), sub_menu.bucarSubMenuXMenuXCargoVisible(rs.getInt("ID"), idCargo));
-        }
-        rs.close();
-        ps.close();
-        return json;
-    }
 }

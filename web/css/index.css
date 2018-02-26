@@ -29,3 +29,20 @@ html, body {
     }
 }
 
+
+#menu a {
+    cursor: pointer;
+}
+
+.user-menu > a {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+.user-menu > a > img {
+    float: none !important; 
+    width: 30px !important; 
+    height: 30px !important; 
+    margin-top: 0 !important;
+}
+
+

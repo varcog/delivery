@@ -19,6 +19,13 @@ public class LOGIN_CONTROLLER extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         SIS_EVENTOS ev = new SIS_EVENTOS();
+        if (request.getSession().getAttribute("usr") != null) {
+            USUARIO u = (USUARIO) request.getSession().getAttribute("usr");
+            Conexion con = u.getCon();
+            if (con != null && con.isConectado()) {
+                con.Close();
+            }
+        }
         request.getSession().setAttribute("usr", null);
 
         String usr = ev.decodeUTF8(request.getParameter("username"));

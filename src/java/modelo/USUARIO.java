@@ -286,6 +286,74 @@ public class USUARIO {
         return lista;
     }
 
+    public JSONArray todosConCargo() throws SQLException, JSONException {
+        String consulta = "SELECT \"USUARIO\".*, \"CARGO\".\"DESCRIPCION\" AS CARGO\n"
+                + "     FROM public.\"USUARIO\"\n"
+                + "          LEFT JOIN public.\"CARGO\" ON \"USUARIO\".\"ID_CARGO\" = \"CARGO\".\"ID\"\n"
+                + "ORDER BY \"USUARIO\".\"USUARIO\" ASC ";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");
+        java.sql.Date aux;
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("USUARIO", rs.getString("USUARIO"));
+            obj.put("NOMBRES", rs.getString("NOMBRES"));
+            obj.put("APELLIDOS", rs.getString("APELLIDOS"));
+            aux = rs.getDate("FECHA_NACIMIENTO");
+            obj.put("FECHA_NACIMIENTO", aux == null ? "" : f.format(aux));
+            aux = rs.getDate("FECHA_CREACION");
+            obj.put("FECHA_CREACION", aux == null ? "" : f.format(aux));
+            obj.put("CI", rs.getString("CI"));
+            obj.put("SEXO", rs.getString("SEXO"));
+            obj.put("ID_CARGO", rs.getInt("ID_CARGO"));
+            obj.put("CARGO", rs.getString("CARGO"));
+            obj.put("ID_USUARIO_CREADOR", rs.getInt("ID_USUARIO_CREADOR"));
+            obj.put("ESTADO", rs.getBoolean("ESTADO"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
+    public void updateDatos() throws SQLException {
+        java.sql.Date fn = FECHA_NACIMIENTO == null ? null : new java.sql.Date(FECHA_NACIMIENTO.getTime());
+        String consulta = "UPDATE public.\"USUARIO\"\n"
+                + "	SET \"NOMBRES\"=?,\"APELLIDOS\"=?,\"FECHA_NACIMIENTO\"=?,\"SEXO\"=?,\"ID_CARGO\"=?\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, NOMBRES, APELLIDOS, fn, SEXO, ID_CARGO, ID);
+    }
+
+    public void updateContrasena() throws SQLException {
+        String consulta = "UPDATE public.\"USUARIO\"\n"
+                + "	SET \"PASSWORD\"=?\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, PASSWORD, ID);
+    }
+
+    public void updateEstado() throws SQLException {
+        String consulta = "UPDATE public.\"USUARIO\"\n"
+                + "	SET \"ESTADO\"=?\n"
+                + "	WHERE \"ID\"=?;";
+        con.EjecutarSentencia(consulta, ESTADO, ID);
+    }
+
+    public String getNombreCompleto() {
+        String res = "";
+        if (NOMBRES != null) {
+            res += NOMBRES;
+        }
+        if (APELLIDOS != null) {
+            res += APELLIDOS;
+        }
+        return res;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) throws SQLException {
 //        Conexion con = Conexion.getConeccion();
 //        USUARIO u = new USUARIO(con);

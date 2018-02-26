@@ -1,7 +1,13 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package controller;
 
 import conexion.Conexion;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.servlet.ServletException;
@@ -10,13 +16,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.DETALLE_NOTA_RECEPCION;
+import modelo.INSUMO;
 import modelo.NOTA_RECEPCION;
 import modelo.PRODUCTO;
 import modelo.USUARIO;
 import org.json.JSONException;
 
-@WebServlet(name = "REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER", urlPatterns = {"/REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER"})
-public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
+/**
+ *
+ * @author benja
+ */
+@WebServlet(name = "ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER", urlPatterns = {"/ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER"})
+public class ALMACEN_REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
 
     private int id_sucursal = 1;
 
@@ -98,13 +109,13 @@ public class REGISTRO_APROBACION_NOTA_RECEPCION_CONTROLLER extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
+    
     private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         int estado = Integer.parseInt(request.getParameter("estado"));
         if (estado == 0) {
-            return new PRODUCTO(con).todos_Almacen(id_sucursal).toString();
+            return new INSUMO(con).todos_Almacen(id_sucursal).toString();
         } else {
-            return new PRODUCTO(con).stock_Almacen(id_sucursal).toString();
+            return new INSUMO(con).stock_Almacen(id_sucursal).toString();
         }
     }
 

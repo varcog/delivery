@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,19 +17,21 @@ public class NOTA_RECEPCION {
     private int ID_SUCURSAL;
     private int ID_USUARIO_ENTREGA;
     private int ID_USUARIO_RECIBE;
+    private int ESTADO;
     private Conexion con;
 
     public NOTA_RECEPCION(Conexion con) {
         this.con = con;
     }
 
-    public NOTA_RECEPCION(int ID, int NUMERO, Date FECHA, int ID_SUCURSAL, int ID_USUARIO_ENTREGA, int ID_USUARIO_RECIBE) {
+    public NOTA_RECEPCION(int ID, int NUMERO, Date FECHA, int ID_SUCURSAL, int ID_USUARIO_ENTREGA, int ID_USUARIO_RECIBE, int ESTADO) {
         this.ID = ID;
         this.NUMERO = NUMERO;
         this.FECHA = FECHA;
         this.ID_SUCURSAL = ID_SUCURSAL;
         this.ID_USUARIO_ENTREGA = ID_USUARIO_ENTREGA;
         this.ID_USUARIO_RECIBE = ID_USUARIO_RECIBE;
+        this.ESTADO = ESTADO;
     }
 
     public int getID() {
@@ -81,6 +82,14 @@ public class NOTA_RECEPCION {
         this.ID_USUARIO_RECIBE = ID_USUARIO_RECIBE;
     }
 
+    public int getESTADO() {
+        return ESTADO;
+    }
+
+    public void setESTADO(int ESTADO) {
+        this.ESTADO = ESTADO;
+    }
+
     public Conexion getCon() {
         return con;
     }
@@ -92,18 +101,18 @@ public class NOTA_RECEPCION {
     ////////////////////////////////////////////////////////////////////////////
     public int insert() throws SQLException {
         String consulta = "INSERT INTO public.\"NOTA_RECEPCION\"(\n"
-                + "	\"FECHA\", \"ID_SUCURSAL\", \"ID_USUARIO_ENTREGA\", \"ID_USUARIO_RECIBE\")\n"
-                + "	VALUES (?, ?, ?, ?);";
-        int id = con.EjecutarInsert(consulta, "ID", new java.sql.Date(FECHA.getTime()), ID_SUCURSAL, ID_USUARIO_ENTREGA, ID_USUARIO_RECIBE);
+                + "	\"FECHA\", \"ID_SUCURSAL\", \"ID_USUARIO_ENTREGA\", \"ID_USUARIO_RECIBE\", \"ESTADO\")\n"
+                + "	VALUES (?, ?, ?, ?, ?);";
+        int id = con.EjecutarInsert(consulta, "ID", new java.sql.Date(FECHA.getTime()), ID_SUCURSAL, ID_USUARIO_ENTREGA, ID_USUARIO_RECIBE, ESTADO);
         this.ID = id;
         return id;
     }
 
     public void update() throws SQLException {
         String consulta = "UPDATE public.\"NOTA_RECEPCION\"\n"
-                + "	SET \"FECHA\"=?, \"ID_SUCURSAL\"=?, \"ID_USUARIO_ENTREGA\"=?, \"ID_USUARIO_RECIBE\"=?\n"
+                + "	SET \"FECHA\"=?, \"ID_SUCURSAL\"=?, \"ID_USUARIO_ENTREGA\"=?, \"ID_USUARIO_RECIBE\"=?, \"ESTADO\"=?\n"
                 + "	WHERE \"ID\"=?;";
-        con.EjecutarSentencia(consulta, FECHA, ID_SUCURSAL, ID_USUARIO_ENTREGA, ID_USUARIO_RECIBE, ID);
+        con.EjecutarSentencia(consulta, FECHA, ID_SUCURSAL, ID_USUARIO_ENTREGA, ID_USUARIO_RECIBE, ESTADO, ID);
     }
 
     public void delete() throws SQLException {

@@ -162,4 +162,33 @@ public class PERMISO {
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    public JSONArray todosXCargo(int id_cargo) throws SQLException, JSONException {
+        String consulta = "SELECT \"PERMISO\".*\n"
+                + "	FROM public.\"PERMISO\"\n"
+                + "     WHERE \"PERMISO\".\"ID_CARGO\" = ?";
+        PreparedStatement ps = con.statametObject(consulta, id_cargo);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("ID_CARGO", rs.getInt("ID_CARGO"));
+            obj.put("ID_SUB_MENU", rs.getInt("ID_SUB_MENU"));
+            obj.put("ALTA", rs.getBoolean("ALTA"));
+            obj.put("BAJA", rs.getBoolean("BAJA"));
+            obj.put("MODIFICACION", rs.getBoolean("MODIFICACION"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
+    public void delete(int id_cargo, int id_sub_menu) throws SQLException {
+        String consulta = "DELETE FROM public.\"PERMISO\"\n"
+                + "	WHERE \"PERMISO\".\"ID_CARGO\"=?\n"
+                + "           AND \"PERMISO\".\"ID_SUB_MENU\"=?;";
+        con.EjecutarSentencia(consulta, id_cargo, id_sub_menu);
+    }
 }

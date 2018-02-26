@@ -22,6 +22,12 @@ public class CARGO {
         this.ID = ID;
         this.DESCRIPCION = DESCRIPCION;
     }
+    
+    public CARGO(int ID, String DESCRIPCION, Conexion con) {
+        this.ID = ID;
+        this.DESCRIPCION = DESCRIPCION;
+        this.con = con;
+    }
 
     public int getID() {
         return ID;

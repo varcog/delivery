@@ -133,9 +133,29 @@ body {
 }
 
 .punto_venta .productos {
-    
+
 }
 
 .punto_venta .calculadora {
-    
+
+}
+
+/* *****************************************************************************
+                              Overflow Tabla
+***************************************************************************** */
+.dataTables_wrapper > div > div {
+    overflow-y: auto;
+    text-align: inherit !important;
+}
+
+/* *****************************************************************************
+                              CLASES
+***************************************************************************** */
+
+.text-normal {
+    font-weight: 100;
+}
+
+.bg-error {
+    background-color: #f2dede !important;
 }

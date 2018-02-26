@@ -1,16 +1,16 @@
 var url = "INGRESO_CONTROLLER";
 
 $(document).ready(function () {
-    $.post(url, {evento: "obtener_menu"}, function (resp) {
+    $.post(url, {evento: "obtener_ingreso"}, function (resp) {
         if (resp === "false")
             location.href = "index.html";
         else {
             $(".elmenu").remove();
             var json = $.parseJSON(resp);
             var html = "";
-            $.each(json, function (menu, submenus) {
+            $.each(json.MENU, function (menu, submenus) {
                 html += "<li class='treeview'>";
-                html += "<a href='#'>";
+                html += "<a>";
                 // fa-asterisk
                 // fa-certificate
                 // fa-circle
@@ -26,6 +26,8 @@ $(document).ready(function () {
                 html += "</li>";
             });
             $("#menu").append(html);
+            $(".nombre_usuario").text((json.USUARIO || ""));
+            $(".cargo").text((json.CARGO || ""));
         }
     });
 });

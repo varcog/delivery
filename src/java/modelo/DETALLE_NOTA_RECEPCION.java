@@ -12,19 +12,23 @@ public class DETALLE_NOTA_RECEPCION {
 
     private int ID;
     private int ID_NOTA_RECEPCION;
-    private int ID_PRODUCTO;
+    private int ID_INSUMO;
+    private int ID_INSUMO_GRUPO;
     private int CANTIDAD;
+    private double PRECIO;
     private Conexion con;
 
     public DETALLE_NOTA_RECEPCION(Conexion con) {
         this.con = con;
     }
 
-    public DETALLE_NOTA_RECEPCION(int ID, int ID_NOTA_RECEPCION, int ID_PRODUCTO, int CANTIDAD) {
+    public DETALLE_NOTA_RECEPCION(int ID, int ID_NOTA_RECEPCION, int ID_PRODUCTO, int CANTIDAD, int ID_INSUMO_GRUPO, int PRECIO) {
         this.ID = ID;
         this.ID_NOTA_RECEPCION = ID_NOTA_RECEPCION;
-        this.ID_PRODUCTO = ID_PRODUCTO;
+        this.ID_INSUMO = ID_PRODUCTO;
         this.CANTIDAD = CANTIDAD;
+        this.ID_INSUMO_GRUPO = ID_INSUMO_GRUPO;
+        this.PRECIO = PRECIO;
     }
 
     public int getID() {
@@ -43,20 +47,36 @@ public class DETALLE_NOTA_RECEPCION {
         this.ID_NOTA_RECEPCION = ID_NOTA_RECEPCION;
     }
 
-    public int getID_PRODUCTO() {
-        return ID_PRODUCTO;
-    }
-
-    public void setID_PRODUCTO(int ID_PRODUCTO) {
-        this.ID_PRODUCTO = ID_PRODUCTO;
-    }
-
     public int getCANTIDAD() {
         return CANTIDAD;
     }
 
     public void setCANTIDAD(int CANTIDAD) {
         this.CANTIDAD = CANTIDAD;
+    }
+
+    public int getID_INSUMO() {
+        return ID_INSUMO;
+    }
+
+    public void setID_INSUMO(int ID_INSUMO) {
+        this.ID_INSUMO = ID_INSUMO;
+    }
+
+    public int getID_INSUMO_GRUPO() {
+        return ID_INSUMO_GRUPO;
+    }
+
+    public void setID_INSUMO_GRUPO(int ID_INSUMO_GRUPO) {
+        this.ID_INSUMO_GRUPO = ID_INSUMO_GRUPO;
+    }
+
+    public double getPRECIO() {
+        return PRECIO;
+    }
+
+    public void setPRECIO(double PRECIO) {
+        this.PRECIO = PRECIO;
     }
 
     public Conexion getCon() {
@@ -70,9 +90,9 @@ public class DETALLE_NOTA_RECEPCION {
     ////////////////////////////////////////////////////////////////////////////
     public int insert() throws SQLException {
         String consulta = "INSERT INTO public.\"DETALLE_NOTA_RECEPCION\"(\n"
-                + "	\"ID_NOTA_RECEPCION\", \"ID_PRODUCTO\", \"CANTIDAD\")\n"
+                + "	\"ID_NOTA_RECEPCION\", \"ID_INSUMO\", \"CANTIDAD\", \"PRECIO\", \"ID_INSUMO_GRUPO\")\n"
                 + "	VALUES (?, ?, ?);";
-        int id = con.EjecutarInsert(consulta, "ID", ID_NOTA_RECEPCION, ID_PRODUCTO, CANTIDAD);
+        int id = con.EjecutarInsert(consulta, "ID", ID_NOTA_RECEPCION, ID_INSUMO, CANTIDAD, PRECIO, (ID_INSUMO_GRUPO > 0 ? ID_INSUMO_GRUPO : null));
         this.ID = id;
         return id;
     }
