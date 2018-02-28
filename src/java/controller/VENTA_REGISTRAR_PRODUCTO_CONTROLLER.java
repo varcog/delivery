@@ -12,14 +12,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import modelo.INSUMO;
 import modelo.PRODUCTO;
+import modelo.PRODUCTO_INSUMO;
 import modelo.USUARIO;
 import org.json.JSONException;
+import org.json.JSONObject;
 import util.SIS_EVENTOS;
 
 @MultipartConfig
-@WebServlet(name = "REGISTRAR_PRODUCTO_CONTROLLER", urlPatterns = {"/REGISTRAR_PRODUCTO_CONTROLLER"})
-public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
+@WebServlet(name = "VENTA_REGISTRAR_PRODUCTO_CONTROLLER", urlPatterns = {"/VENTA_REGISTRAR_PRODUCTO_CONTROLLER"})
+public class VENTA_REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
 
     public static final String ERROR_CODIGO_REPETIDO = "CODIGO_REPETIDO";
 
@@ -42,14 +45,20 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             String html = "";
             String evento = request.getParameter("evento");
             switch (evento) {
-                case "todos":
-                    html = todos(request, con);
+                case "init":
+                    html = init(request, con);
                     break;
                 case "guardar_producto":
                     html = guardar_producto(request, con);
                     break;
                 case "eliminar_producto":
                     html = eliminar_producto(request, con);
+                    break;
+                case "insumo_producto":
+                    html = insumo_producto(request, con);
+                    break;
+                case "guardar_insumo_producto":
+                    html = guardar_insumo_producto(request, con);
                     break;
             }
             con.commit();
@@ -102,15 +111,17 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private String todos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        return new PRODUCTO(con).todos().toString();
+    private String init(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
+        JSONObject json = new JSONObject();
+        json.put("INSUMOS", new INSUMO(con).todosConUM());
+        json.put("PRODUCTOS", new PRODUCTO(con).todos());
+        return json.toString();
     }
 
     private String guardar_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
         int id = Integer.parseInt(request.getParameter("id"));
         String codigo = request.getParameter("codigo");
         String descripcion = request.getParameter("descripcion");
-        double precio_compra = Double.parseDouble(request.getParameter("precio_compra"));
         double precio_venta = Double.parseDouble(request.getParameter("precio_venta"));
         String imagen = null;
         String ruta = null;
@@ -143,7 +154,7 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             p.setCODIGO(codigo);
             p.setNOMBRE(descripcion);
             p.setIMAGEN(imagen);
-
+            p.setPRECIO_VENTA(precio_venta);
             try {
                 p.update();
             } catch (Exception e) {
@@ -163,7 +174,7 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             }
             return p.toJSONObject().toString();
         } else {
-            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, 0);
+            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, precio_venta);
             p.setCon(con);
             try {
                 id = p.insert();
@@ -199,6 +210,26 @@ public class REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
         PRODUCTO p = new PRODUCTO(con);
         p.setID(id);
         p.delete();
+        return "true";
+    }
+
+    private String insumo_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
+        int id_insumo_grupo = Integer.parseInt(request.getParameter("id_insumo_grupo"));
+        return new PRODUCTO_INSUMO(con).todosXID_PRODUCTO_JSONArray(id_insumo_grupo).toString();
+    }
+
+    private String guardar_insumo_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
+        int id_producto = Integer.parseInt(request.getParameter("id_producto"));
+        int length = Integer.parseInt(request.getParameter("length"));
+        PRODUCTO_INSUMO igd = new PRODUCTO_INSUMO(con);
+        igd.deleteXID_PRODUCTO(id_producto);
+        for (int i = 0; i < length; i++) {
+            igd.setID(0);
+            igd.setID_PRODUCTO(id_producto);
+            igd.setID_INSUMO(Integer.parseInt(request.getParameter("lista[" + i + "][id_insumo]")));
+            igd.setCANTIDAD(Double.parseDouble(request.getParameter("lista[" + i + "][cantidad]")));
+            igd.insert();
+        }
         return "true";
     }
 

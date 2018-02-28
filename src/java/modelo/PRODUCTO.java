@@ -14,19 +14,19 @@ public class PRODUCTO {
     private String CODIGO;
     private String NOMBRE;
     private String IMAGEN;
-    private int UNIDAD_MEDIDA;
+    private double PRECIO_VENTA;
     private Conexion con;
 
     public PRODUCTO(Conexion con) {
         this.con = con;
     }
 
-    public PRODUCTO(int ID, String CODIGO, String NOMBRE, String IMAGEN, int UNIDAD_MEDIDA) {
+    public PRODUCTO(int ID, String CODIGO, String NOMBRE, String IMAGEN, double PRECIO_VENTA) {
         this.ID = ID;
         this.CODIGO = CODIGO;
         this.NOMBRE = NOMBRE;
         this.IMAGEN = IMAGEN;
-        this.UNIDAD_MEDIDA = UNIDAD_MEDIDA;
+        this.PRECIO_VENTA = PRECIO_VENTA;
     }
 
     public int getID() {
@@ -61,12 +61,12 @@ public class PRODUCTO {
         this.IMAGEN = IMAGEN;
     }
 
-    public int getUNIDAD_MEDIDA() {
-        return UNIDAD_MEDIDA;
+    public double getPRECIO_VENTA() {
+        return PRECIO_VENTA;
     }
 
-    public void setUNIDAD_MEDIDA(int UNIDAD_MEDIDA) {
-        this.UNIDAD_MEDIDA = UNIDAD_MEDIDA;
+    public void setPRECIO_VENTA(double PRECIO_VENTA) {
+        this.PRECIO_VENTA = PRECIO_VENTA;
     }
 
     public Conexion getCon() {
@@ -80,18 +80,18 @@ public class PRODUCTO {
     ////////////////////////////////////////////////////////////////////////////
     public int insert() throws SQLException {
         String consulta = "INSERT INTO public.\"PRODUCTO\"(\n"
-                + "	\"CODIGO\", \"NOMBRE\", \"UNIDAD_MEDIDA\", \"IMAGEN\")\n"
+                + "	\"CODIGO\", \"NOMBRE\", \"PRECIO_VENTA\", \"IMAGEN\", \"IMAGEN\")\n"
                 + "	VALUES (?, ?, ?, ?)";
-        int id = con.EjecutarInsert(consulta, "ID", CODIGO, NOMBRE, UNIDAD_MEDIDA, IMAGEN);
+        int id = con.EjecutarInsert(consulta, "ID", CODIGO, NOMBRE, PRECIO_VENTA, IMAGEN);
         this.ID = id;
         return id;
     }
 
-    public void update() throws SQLException  {
+    public void update() throws SQLException {
         String consulta = "UPDATE public.\"PRODUCTO\"\n"
-                + "	SET \"CODIGO\"=?, \"NOMBRE\"=?, \"UNIDAD_MEDIDA\"=?, \"IMAGEN\"=?\n"
+                + "	SET \"CODIGO\"=?, \"NOMBRE\"=?, \"PRECIO_VENTA\"=?, \"IMAGEN\"=?\n"
                 + "	WHERE \"ID\"=?;";
-        con.EjecutarSentencia(consulta, CODIGO, NOMBRE, UNIDAD_MEDIDA, IMAGEN, ID);
+        con.EjecutarSentencia(consulta, CODIGO, NOMBRE, PRECIO_VENTA, IMAGEN, ID);
     }
 
     public void delete() throws SQLException {
@@ -113,7 +113,7 @@ public class PRODUCTO {
             obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
-            obj.put("UNIDAD_MEDIDA", rs.getInt("UNIDAD_MEDIDA"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
             json.put(obj);
         }
         rs.close();
@@ -132,7 +132,7 @@ public class PRODUCTO {
             p.setCODIGO(rs.getString("CODIGO"));
             p.setNOMBRE(rs.getString("NOMBRE"));
             p.setIMAGEN(rs.getString("IMAGEN"));
-            p.setUNIDAD_MEDIDA(rs.getInt("UNIDAD_MEDIDA"));
+            p.setPRECIO_VENTA(rs.getDouble("PRECIO_VENTA"));
             return p;
         }
         return null;
@@ -144,7 +144,7 @@ public class PRODUCTO {
         obj.put("CODIGO", CODIGO);
         obj.put("NOMBRE", NOMBRE);
         obj.put("IMAGEN", IMAGEN);
-        obj.put("UNIDAD_MEDIDA", UNIDAD_MEDIDA);
+        obj.put("PRECIO_VENTA", PRECIO_VENTA);
         return obj;
     }
 
@@ -152,7 +152,7 @@ public class PRODUCTO {
         String consulta = "SELECT PRODUCTO.\"ID\",\n"
                 + "	   PRODUCTO.\"CODIGO\",\n"
                 + "	   PRODUCTO.\"NOMBRE\",\n"
-                + "        PRODUCTO.\"UNIDAD_MEDIDA\",\n"
+                + "        PRODUCTO.\"PRECIO_VENTA\",\n"
                 + "        PRODUCTO.\"IMAGEN\",\n"
                 + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
                 + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
@@ -180,7 +180,7 @@ public class PRODUCTO {
             obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
-            obj.put("UNIDAD_MEDIDA", rs.getInt("UNIDAD_MEDIDA"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
             obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
             json.put(obj);
         }
@@ -193,7 +193,7 @@ public class PRODUCTO {
         String consulta = "SELECT PRODUCTO.\"ID\",\n"
                 + "	   PRODUCTO.\"CODIGO\",\n"
                 + "	   PRODUCTO.\"NOMBRE\",\n"
-                + "        PRODUCTO.\"UNIDAD_MEDIDA\",\n"
+                + "        PRODUCTO.\"PRECIO_VENTA\",\n"
                 + "        PRODUCTO.\"IMAGEN\",\n"
                 + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
                 + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
@@ -221,7 +221,7 @@ public class PRODUCTO {
             obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
-            obj.put("UNIDAD_MEDIDA", rs.getInt("UNIDAD_MEDIDA"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
             obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
             json.put(obj);
         }

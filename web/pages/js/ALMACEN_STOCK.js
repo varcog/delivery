@@ -67,6 +67,7 @@ function pop_aumentar_stock() {
             html += "<tr data-id='" + obj.ID + "' class='ing_" + obj.ID + " grupo'>";
             html += "<td></td>";
             html += "<td>" + (obj.DESCRIPCION || "") + "</td>";
+            html += "<td></td>";
             html += "<td><input type='number' data-id='" + obj.ID + "' class='stock_cantidad text-right grupo' value='0'/></td>";
             html += "<td><input type='text' data-id='" + obj.ID + "' class='stock_precio text-right numero_decimal' value='0'/></td>";
             html += "</tr>";
@@ -86,21 +87,26 @@ function verificar_aumentar_stock() {
     mostrarCargando();
 //    tabla_stock_add_verify.detroy();
     var ll = tabla_stock_add.data().length;
-    var input, valor;
+    var input, valor, input_pre, precio;
     lista_select = [];
     var html = "";
     for (var i = 0; i < ll; i++) {
-        input = $(tabla_stock_add.cell(i, 2).node()).children();
+        input = $(tabla_stock_add.cell(i, 3).node()).children();
+        input_pre = $(tabla_stock_add.cell(i, 4).node()).children();
         valor = parseInt(input.val());
+        precio = parseInt(input_pre.val());
         if (!isNaN(valor) && valor > 0) {
             html += "<tr>";
             html += "<td>" + tabla_stock_add.cell(i, 0).data() + "</td>";
             html += "<td>" + tabla_stock_add.cell(i, 1).data() + "</td>";
+            html += "<td>" + tabla_stock_add.cell(i, 2).data() + "</td>";
             html += "<td class='text-right'>" + valor + "</td>";
+            html += "<td class='text-right'>" + precio + "</td>";
             html += "</tr>";
             lista_select.push({
                 id: input.data("id"),
                 cantidad: valor,
+                percio: precio,
                 grupo: input.is(".grupo")
             });
         }

@@ -1,7 +1,6 @@
 package controller;
 
 import conexion.Conexion;
-import static controller.ALMACEN_INSUMOS_CONTROLLER.ERROR_CODIGO_REPETIDO;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import modelo.INSUMO;
 import modelo.INSUMO_GRUPO;
 import modelo.INSUMO_GRUPO_DETALLE;
-import modelo.UNIDAD_MEDIDA;
 import modelo.USUARIO;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -144,7 +142,7 @@ public class ALMACEN_INSUMOS_GRUPO_CONTROLLER extends HttpServlet {
 
     private String insumo_grupo_detalle(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
         int id_insumo_grupo = Integer.parseInt(request.getParameter("id_insumo_grupo"));
-        return new INSUMO_GRUPO_DETALLE(con).todosXID_INSUMO_GRUPO(id_insumo_grupo).toString();
+        return new INSUMO_GRUPO_DETALLE(con).todosXID_INSUMO_GRUPO_JSONArray(id_insumo_grupo).toString();
     }
 
     private String guardar_insumo_grupo_detalle(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {

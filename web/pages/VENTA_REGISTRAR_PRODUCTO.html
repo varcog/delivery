@@ -32,7 +32,9 @@
         <script src="../plugins/datatables/dataTables.bootstrap.min.js"></script>
 
         <script src="js/comun.js" type="text/javascript"></script>
-        <script src="js/REGISTRAR_PRODUCTO.js"></script>
+        <script src="../plugins/autoNumeric/autoNumeric.js" type="text/javascript"></script>
+        <script src="../plugins/autoNumeric/formatoNumero.js" type="text/javascript"></script>
+        <script src="js/VENTA_REGISTRAR_PRODUCTO.js"></script>
     </head>
     <body class="hold-transition skin-blue sidebar-mini" style="background: #ECF0F5;">
         <div class="content">    
@@ -51,9 +53,11 @@
                                     <tr>
                                         <th>Código</th>
                                         <th>Descripcion</th>
-                                        <th>Precio Compra</th>
+                                        <th>Imagen</th>
                                         <th>Precio Venta</th>
-                                        <th>Eventos</th>
+                                        <th>Editar</th>
+                                        <th>Insumos</th>
+                                        <th>Eliminar</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cuerpo">
@@ -63,9 +67,11 @@
                                     <tr>
                                         <th>Código</th>
                                         <th>Descripcion</th>
-                                        <th>Precio Compra</th>
+                                        <th>Imagen</th>
                                         <th>Precio Venta</th>
-                                        <th>Eventos</th>
+                                        <th>Editar</th>
+                                        <th>Insumos</th>
+                                        <th>Eliminar</th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -108,12 +114,8 @@
                                 <input type="text" class="form-control" name="descripcion" id="c_descripcion" />
                             </div>
                             <div class="form-group">
-                                <label for="c_precio_compra" class="col-form-label">Precio Compra:</label>
-                                <input type="number" class="form-control text-right" name="precio_compra" id="c_precio_compra">
-                            </div>
-                            <div class="form-group">
                                 <label for="c_precio_venta" class="col-form-label">Precio Venta:</label>
-                                <input type="number" class="form-control text-right" name="precio_venta" id="c_precio_venta">
+                                <input type="text" class="form-control text-right numero_decimal" name="precio_venta" id="c_precio_venta">
                             </div>
                             <div class="form-group">
                                 <label class="col-form-label">Imagen:</label>
@@ -135,6 +137,74 @@
                 </div>
             </div>
         </div>
+
+        <!--INSUMOS Modal-->
+        <div class="modal" tabindex="-1" role="dialog" id="insumoGrupoDetalleModal" style="display: none;">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-center text-bold" id="insumoGrupoDetalleModalLabel">Insumos</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="ing_id_producto" value=""/>
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label>Insumo</label>
+                                <select class="form-control" id="ing_insumos" ></select>
+                            </div>
+                            <div class="form-group text-center">
+                                <button type="button" class="btn btn-success" onclick="agregar_insumo_producto()" id="agregar_insumo_detalle">Agregar Insumo al Detalle</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="box">
+                                    <div class="box-header">
+                                        <h3 class="box-title text-bold">Detalle</h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <!--<table id="example1" class="table table-bordered table-striped">-->
+                                        <table id="tablaInsumoProductoDetalle" class="table table-bordered table-hover tabla_general">
+                                            <thead>
+                                                <tr>
+                                                    <th>Insumo</th>
+                                                    <th>Unidad de Medida</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Eliminar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="cuerpoInsumoProductoDetalle">
+
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Insumo</th>
+                                                    <th>Unidad de Medida</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Eliminar</th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.box -->
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="guardar_insumo_producto()">Guardar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!--eliminar Model-->
         <div class="modal fade" id="eliminarModal" tabindex="-2" role="dialog" aria-labelledby="mapaModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">

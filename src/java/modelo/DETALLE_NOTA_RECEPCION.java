@@ -14,7 +14,7 @@ public class DETALLE_NOTA_RECEPCION {
     private int ID_NOTA_RECEPCION;
     private int ID_INSUMO;
     private int ID_INSUMO_GRUPO;
-    private int CANTIDAD;
+    private double CANTIDAD;
     private double PRECIO;
     private Conexion con;
 
@@ -22,7 +22,7 @@ public class DETALLE_NOTA_RECEPCION {
         this.con = con;
     }
 
-    public DETALLE_NOTA_RECEPCION(int ID, int ID_NOTA_RECEPCION, int ID_PRODUCTO, int CANTIDAD, int ID_INSUMO_GRUPO, int PRECIO) {
+    public DETALLE_NOTA_RECEPCION(int ID, int ID_NOTA_RECEPCION, int ID_PRODUCTO, double CANTIDAD, int ID_INSUMO_GRUPO, int PRECIO) {
         this.ID = ID;
         this.ID_NOTA_RECEPCION = ID_NOTA_RECEPCION;
         this.ID_INSUMO = ID_PRODUCTO;
@@ -47,11 +47,11 @@ public class DETALLE_NOTA_RECEPCION {
         this.ID_NOTA_RECEPCION = ID_NOTA_RECEPCION;
     }
 
-    public int getCANTIDAD() {
+    public double getCANTIDAD() {
         return CANTIDAD;
     }
 
-    public void setCANTIDAD(int CANTIDAD) {
+    public void setCANTIDAD(double CANTIDAD) {
         this.CANTIDAD = CANTIDAD;
     }
 
@@ -91,7 +91,7 @@ public class DETALLE_NOTA_RECEPCION {
     public int insert() throws SQLException {
         String consulta = "INSERT INTO public.\"DETALLE_NOTA_RECEPCION\"(\n"
                 + "	\"ID_NOTA_RECEPCION\", \"ID_INSUMO\", \"CANTIDAD\", \"PRECIO\", \"ID_INSUMO_GRUPO\")\n"
-                + "	VALUES (?, ?, ?);";
+                + "	VALUES (?, ?, ?, ?, ?);";
         int id = con.EjecutarInsert(consulta, "ID", ID_NOTA_RECEPCION, ID_INSUMO, CANTIDAD, PRECIO, (ID_INSUMO_GRUPO > 0 ? ID_INSUMO_GRUPO : null));
         this.ID = id;
         return id;
@@ -105,13 +105,27 @@ public class DETALLE_NOTA_RECEPCION {
 
     public JSONArray detalleNotaRecepcionPdf(int id_nota_recepcion) throws SQLException, JSONException {
         String consulta = "SELECT \"DETALLE_NOTA_RECEPCION\".\"ID\", \n"
-                + "       \"PRODUCTO\".\"CODIGO\", \n"
-                + "       \"PRODUCTO\".\"NOMBRE\", \n"
-                + "       \"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\"\n"
+                + "       \"INSUMO\".\"CODIGO\", \n"
+                + "       \"INSUMO\".\"DESCRIPCION\" AS INSUMO, \n"
+                + "       \"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\",\n"
+                + "       \"DETALLE_NOTA_RECEPCION\".\"PRECIO\"\n"
                 + "	FROM public.\"DETALLE_NOTA_RECEPCION\"\n"
-                + "    	 INNER JOIN public.\"PRODUCTO\" ON \"PRODUCTO\".\"ID\" = \"DETALLE_NOTA_RECEPCION\".\"ID_PRODUCTO\"\n"
-                + "    WHERE \"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = ?;\n"
-                + "    ";
+                + "    	 INNER JOIN public.\"INSUMO\" ON \"INSUMO\".\"ID\" = \"DETALLE_NOTA_RECEPCION\".\"ID_INSUMO\"\n"
+                + "    WHERE \"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = ?\n"
+                + "    ORDER BY \"INSUMO\".\"CODIGO\";";
+//        String consulta = "SELECT \"DETALLE_NOTA_RECEPCION\".\"ID\", \n"
+//                + "       \"INSUMO\".\"CODIGO\", \n"
+//                + "       \"INSUMO\".\"DESCRIPCION\" AS INSUMO, \n"
+//                + "       \"DETALLE_NOTA_RECEPCION\".\"CANTIDAD\",\n"
+//                + "       \"DETALLE_NOTA_RECEPCION\".\"PRECIO\",\n"
+//                + "       \"INSUMO_GRUPO\".\"ID\" AS ID_INSUMO_GRUPO,\n"
+//                + "       \"INSUMO_GRUPO\".\"DESCRIPCION\" AS INSUMO_GRUPO\n"
+//                + "	FROM public.\"DETALLE_NOTA_RECEPCION\"\n"
+//                + "    	     INNER JOIN public.\"INSUMO\" ON \"INSUMO\".\"ID\" = \"DETALLE_NOTA_RECEPCION\".\"INSUMO\"\n"
+//                + "    	     LEFT JOIN public.\"INSUMO_GRUPO_DETALLE\" ON \"INSUMO\".\"ID\" = \"INSUMO_GRUPO_DETALLE\".\"ID_INSUMO\"\n"
+//                + "    	     LEFT JOIN public.\"INSUMO_GRUPO\" ON \"INSUMO_GRUPO_DETALLE\".\"ID_INSUMO_GRUPO\" = \"INSUMO_GRUPO\".\"ID\"\n"
+//                + "    WHERE \"DETALLE_NOTA_RECEPCION\".\"ID_NOTA_RECEPCION\" = ?;\n"
+//                + "    ";
         PreparedStatement ps = con.statametObject(consulta, id_nota_recepcion);
         ResultSet rs = ps.executeQuery();
         JSONArray json = new JSONArray();
@@ -120,8 +134,10 @@ public class DETALLE_NOTA_RECEPCION {
             obj = new JSONObject();
             obj.put("ID", rs.getInt("ID"));
             obj.put("CODIGO", rs.getString("CODIGO"));
-            obj.put("NOMBRE", rs.getString("NOMBRE"));
-            obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
+            obj.put("INSUMO", rs.getString("INSUMO"));
+            obj.put("CANTIDAD", rs.getDouble("CANTIDAD"));
+//            obj.put("INSUMO_GRUPO", rs.getString("INSUMO_GRUPO"));
+//            obj.put("IS_GRUPO", rs.getInt("ID_INSUMO_GRUPO") > 0);
             json.put(obj);
         }
         rs.close();

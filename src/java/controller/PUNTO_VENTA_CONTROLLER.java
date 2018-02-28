@@ -1,7 +1,7 @@
 package controller;
 
 import conexion.Conexion;
-import static controller.REGISTRAR_PRODUCTO_CONTROLLER.ERROR_CODIGO_REPETIDO;
+import static controller.VENTA_REGISTRAR_PRODUCTO_CONTROLLER.ERROR_CODIGO_REPETIDO;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;

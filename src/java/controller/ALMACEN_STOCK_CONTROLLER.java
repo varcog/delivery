@@ -3,6 +3,7 @@ package controller;
 import conexion.Conexion;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,8 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import modelo.DETALLE_NOTA_RECEPCION;
 import modelo.INSUMO;
 import modelo.INSUMO_GRUPO;
+import modelo.INSUMO_GRUPO_DETALLE;
 import modelo.NOTA_RECEPCION;
 import modelo.USUARIO;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -116,7 +119,7 @@ public class ALMACEN_STOCK_CONTROLLER extends HttpServlet {
 
     private String todos_insumos(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         JSONObject json = new JSONObject();
-        json.put("INSUMO", new INSUMO(con).todos());
+        json.put("INSUMO", new INSUMO(con).todosConUM());
         json.put("INSUMO_GRUPO", new INSUMO_GRUPO(con).todos());
         return json.toString();
     }
@@ -128,16 +131,43 @@ public class ALMACEN_STOCK_CONTROLLER extends HttpServlet {
         int id_nota = nr.insert();
         int id_insumo, cantidad;
         boolean grupo;
+        double precio;
         DETALLE_NOTA_RECEPCION dnr = new DETALLE_NOTA_RECEPCION(con);
         for (int i = 0; i < lista_size; i++) {
             id_insumo = Integer.parseInt(request.getParameter("productos[" + i + "][id]"));
             cantidad = Integer.parseInt(request.getParameter("productos[" + i + "][cantidad]"));
+            precio = Double.parseDouble(request.getParameter("productos[" + i + "][cantidad]"));
             grupo = Boolean.parseBoolean(request.getParameter("productos[" + i + "][grupo]"));
             if (grupo) {
+                ArrayList<INSUMO_GRUPO_DETALLE> lista = new INSUMO_GRUPO_DETALLE(con).todosXID_INSUMO_GRUPO(id_insumo);
+                double total_cant = .0;
+                for (int j = 0; j < lista.size(); j++) {
+                    total_cant += lista.get(j).getCANTIDAD();
+                }
+                double total_pre = .0;
+                double parcial_pre;
+                for (int j = 0; j < lista.size(); j++) {
+                    INSUMO_GRUPO_DETALLE igd = lista.get(j);
+                    dnr.setCANTIDAD(cantidad * igd.getCANTIDAD());
+                    dnr.setID_NOTA_RECEPCION(id_nota);
+                    dnr.setID_INSUMO(igd.getID_INSUMO());
+                    dnr.setID_INSUMO_GRUPO(igd.getID_INSUMO_GRUPO());
+                    if (j == lista.size() - 1) {
+                        parcial_pre = precio - total_pre;
+                    } else {
+                        parcial_pre = igd.getCANTIDAD() / total_cant * precio;
+                        total_pre += parcial_pre;
+                    }
+                    dnr.setPRECIO(parcial_pre);
+                    dnr.setID(0);
+                    dnr.insert();
+                }
+            } else {
                 dnr.setCANTIDAD(cantidad);
                 dnr.setID_NOTA_RECEPCION(id_nota);
                 dnr.setID_INSUMO(id_insumo);
                 dnr.setID_INSUMO_GRUPO(0);
+                dnr.setPRECIO(precio);
                 dnr.setID(0);
                 dnr.insert();
             }
