@@ -105,90 +105,91 @@ public class PUNTO_VENTA_CONTROLLER extends HttpServlet {
     }
 
     private String guardar_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String codigo = request.getParameter("codigo");
-        String descripcion = request.getParameter("descripcion");
-        double precio_compra = Double.parseDouble(request.getParameter("precio_compra"));
-        double precio_venta = Double.parseDouble(request.getParameter("precio_venta"));
-        String imagen = null;
-        String ruta = null;
-        Part file = request.getPart("imagen");
-        SIS_EVENTOS ev = new SIS_EVENTOS();
-        boolean ok_subir = false;
-        String ruta_folder = this.getServletContext().getRealPath("/img") + File.separator + "productos" + File.separator;
-        String ruta_web = this.getServletContext().getContextPath() + "/img/productos/";
-        Date d = new Date();
-        if (id > 0) {
-            if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
-                String tipo[] = file.getContentType().split("/");
-                if (tipo.length > 1) {
-                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
-                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
-                } else {
-                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
-                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
-                }
-                ok_subir = ev.guardarImagenEnElSistemaDeFicheros(file.getInputStream(), ruta);
-            }
-            PRODUCTO p = new PRODUCTO(con).buscar(id);
-            if (p == null) {
-                return "false";
-            }
-            if (!ok_subir) {
-                imagen = p.getIMAGEN();
-            }
-            String antImagen = p.getIMAGEN();
-            p.setCODIGO(codigo);
-            p.setNOMBRE(descripcion);
-            p.setIMAGEN(imagen);
-            try {
-                p.update();
-            } catch (Exception e) {
-                ev.eliminarImagenEnElSistemaDeFicheros(ruta);
-                if (e.getMessage().contains("uq_producto_codigo")) {
-                    return ERROR_CODIGO_REPETIDO;
-                } else {
-                    throw e;
-                }
-            }
-
-            if (antImagen != null && ok_subir) {
-                String ims[] = antImagen.split("/");
-                if (ims.length > 0) {
-                    ev.eliminarImagenEnElSistemaDeFicheros(ruta_folder + ims[ims.length - 1]);
-                }
-            }
-            return p.toJSONObject().toString();
-        } else {
-            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, 0);
-            p.setCon(con);
-            try {
-                id = p.insert();
-            } catch (Exception e) {
-                if (e.getMessage().contains("uq_producto_codigo")) {
-                    return ERROR_CODIGO_REPETIDO;
-                } else {
-                    throw e;
-                }
-            }
-            if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
-                String tipo[] = file.getContentType().split("/");
-                if (tipo.length > 1) {
-                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
-                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
-                } else {
-                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
-                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
-                }
-                ok_subir = ev.guardarImagenEnElSistemaDeFicheros(file.getInputStream(), ruta);
-            }
-            if (ok_subir) {
-                p.setIMAGEN(imagen);
-                p.setID(id);
-                p.update();
-            }
-            return p.toJSONObject().toString();
-        }
+//        int id = Integer.parseInt(request.getParameter("id"));
+//        String codigo = request.getParameter("codigo");
+//        String descripcion = request.getParameter("descripcion");
+//        double precio_compra = Double.parseDouble(request.getParameter("precio_compra"));
+//        double precio_venta = Double.parseDouble(request.getParameter("precio_venta"));
+//        String imagen = null;
+//        String ruta = null;
+//        Part file = request.getPart("imagen");
+//        SIS_EVENTOS ev = new SIS_EVENTOS();
+//        boolean ok_subir = false;
+//        String ruta_folder = this.getServletContext().getRealPath("/img") + File.separator + "productos" + File.separator;
+//        String ruta_web = this.getServletContext().getContextPath() + "/img/productos/";
+//        Date d = new Date();
+//        if (id > 0) {
+//            if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
+//                String tipo[] = file.getContentType().split("/");
+//                if (tipo.length > 1) {
+//                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+//                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+//                } else {
+//                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+//                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+//                }
+//                ok_subir = ev.guardarImagenEnElSistemaDeFicheros(file.getInputStream(), ruta);
+//            }
+//            PRODUCTO p = new PRODUCTO(con).buscar(id);
+//            if (p == null) {
+//                return "false";
+//            }
+//            if (!ok_subir) {
+//                imagen = p.getIMAGEN();
+//            }
+//            String antImagen = p.getIMAGEN();
+//            p.setCODIGO(codigo);
+//            p.setNOMBRE(descripcion);
+//            p.setIMAGEN(imagen);
+//            try {
+//                p.update();
+//            } catch (Exception e) {
+//                ev.eliminarImagenEnElSistemaDeFicheros(ruta);
+//                if (e.getMessage().contains("uq_producto_codigo")) {
+//                    return ERROR_CODIGO_REPETIDO;
+//                } else {
+//                    throw e;
+//                }
+//            }
+//
+//            if (antImagen != null && ok_subir) {
+//                String ims[] = antImagen.split("/");
+//                if (ims.length > 0) {
+//                    ev.eliminarImagenEnElSistemaDeFicheros(ruta_folder + ims[ims.length - 1]);
+//                }
+//            }
+//            return p.toJSONObject().toString();
+//        } else {
+//            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, 0);
+//            p.setCon(con);
+//            try {
+//                id = p.insert();
+//            } catch (Exception e) {
+//                if (e.getMessage().contains("uq_producto_codigo")) {
+//                    return ERROR_CODIGO_REPETIDO;
+//                } else {
+//                    throw e;
+//                }
+//            }
+//            if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
+//                String tipo[] = file.getContentType().split("/");
+//                if (tipo.length > 1) {
+//                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+//                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "." + tipo[1];
+//                } else {
+//                    imagen = ruta_web + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+//                    ruta = ruta_folder + "producto_" + id + "_" + d.getTime() + "_" + file.getSubmittedFileName();
+//                }
+//                ok_subir = ev.guardarImagenEnElSistemaDeFicheros(file.getInputStream(), ruta);
+//            }
+//            if (ok_subir) {
+//                p.setIMAGEN(imagen);
+//                p.setID(id);
+//                p.update();
+//            }
+//            return p.toJSONObject().toString();
+//        }
+        return "";
     }
 
     private String eliminar_producto(HttpServletRequest request, Conexion con) throws SQLException, JSONException {

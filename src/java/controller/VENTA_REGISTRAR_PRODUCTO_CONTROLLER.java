@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import modelo.CATEGORIA_PRODUCTO;
 import modelo.INSUMO;
 import modelo.PRODUCTO;
 import modelo.PRODUCTO_INSUMO;
@@ -114,7 +115,8 @@ public class VENTA_REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
     private String init(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
         JSONObject json = new JSONObject();
         json.put("INSUMOS", new INSUMO(con).todosConUM());
-        json.put("PRODUCTOS", new PRODUCTO(con).todos());
+        json.put("PRODUCTOS", new PRODUCTO(con).todosConCATEGORIA_PRODUCTO());
+        json.put("CATEGORIAS", new CATEGORIA_PRODUCTO(con).todos());
         return json.toString();
     }
 
@@ -123,6 +125,7 @@ public class VENTA_REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
         String codigo = request.getParameter("codigo");
         String descripcion = request.getParameter("descripcion");
         double precio_venta = Double.parseDouble(request.getParameter("precio_venta"));
+        int id_categoria = Integer.parseInt(request.getParameter("id_categoria"));
         String imagen = null;
         String ruta = null;
         Part file = request.getPart("imagen");
@@ -155,6 +158,7 @@ public class VENTA_REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             p.setNOMBRE(descripcion);
             p.setIMAGEN(imagen);
             p.setPRECIO_VENTA(precio_venta);
+            p.setID_CATEGORIA_PRODUCTO(id_categoria);
             try {
                 p.update();
             } catch (Exception e) {
@@ -174,7 +178,7 @@ public class VENTA_REGISTRAR_PRODUCTO_CONTROLLER extends HttpServlet {
             }
             return p.toJSONObject().toString();
         } else {
-            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, precio_venta);
+            PRODUCTO p = new PRODUCTO(id, codigo, descripcion, null, precio_venta, id_categoria);
             p.setCon(con);
             try {
                 id = p.insert();

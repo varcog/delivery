@@ -250,6 +250,37 @@ public class PRODUCTO {
         return json;
     }
 
+    public JSONArray todosConCATEGORIA_PRODUCTO() throws SQLException, JSONException {
+        String consulta = "SELECT PRODUCTO.\"ID\",\n"
+                + "	   PRODUCTO.\"CODIGO\",\n"
+                + "	   PRODUCTO.\"NOMBRE\",\n"
+                + "        PRODUCTO.\"PRECIO_VENTA\",\n"
+                + "        PRODUCTO.\"IMAGEN\",\n"
+                + "        PRODUCTO.\"ID_CATEGORIA_PRODUCTO\",\n"
+                + "        \"CATEGORIA_PRODUCTO\".\"NOMBRE\" AS CATEGORIA_PRODUCTO\n"
+                + "FROM public.\"PRODUCTO\"\n"
+                + "     LEFT JOIN \"CATEGORIA_PRODUCTO\" ON PRODUCTO.\"ID_CATEGORIA_PRODUCTO\" = \"CATEGORIA_PRODUCTO\".\"ID\"\n"
+                + "ORDER BY \"PRODUCTO\".\"CODIGO\" ASC ";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("ID_CATEGORIA_PRODUCTO", rs.getInt("ID_CATEGORIA_PRODUCTO"));
+            obj.put("CATEGORIA_PRODUCTO", rs.getString("CATEGORIA_PRODUCTO"));
+            obj.put("CODIGO", rs.getString("CODIGO"));
+            obj.put("NOMBRE", rs.getString("NOMBRE"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
 //    public static void main(String[] args) throws SQLException {
 //        Conexion con = new Conexion();
 //        PRODUCTO p = new PRODUCTO(con).buscar(4);
