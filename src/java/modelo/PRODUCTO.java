@@ -15,13 +15,14 @@ public class PRODUCTO {
     private String NOMBRE;
     private String IMAGEN;
     private double PRECIO_VENTA;
+    private int ID_CATEGORIA_PRODUCTO;
     private Conexion con;
 
     public PRODUCTO(Conexion con) {
         this.con = con;
     }
 
-    public PRODUCTO(int ID, String CODIGO, String NOMBRE, String IMAGEN, double PRECIO_VENTA) {
+    public PRODUCTO(int ID, String CODIGO, String NOMBRE, String IMAGEN, double PRECIO_VENTA, int ID_CATEGORIA_PRODUCTO) {
         this.ID = ID;
         this.CODIGO = CODIGO;
         this.NOMBRE = NOMBRE;
@@ -69,6 +70,14 @@ public class PRODUCTO {
         this.PRECIO_VENTA = PRECIO_VENTA;
     }
 
+    public int getID_CATEGORIA_PRODUCTO() {
+        return ID_CATEGORIA_PRODUCTO;
+    }
+
+    public void setID_CATEGORIA_PRODUCTO(int ID_CATEGORIA_PRODUCTO) {
+        this.ID_CATEGORIA_PRODUCTO = ID_CATEGORIA_PRODUCTO;
+    }
+
     public Conexion getCon() {
         return con;
     }
@@ -80,18 +89,18 @@ public class PRODUCTO {
     ////////////////////////////////////////////////////////////////////////////
     public int insert() throws SQLException {
         String consulta = "INSERT INTO public.\"PRODUCTO\"(\n"
-                + "	\"CODIGO\", \"NOMBRE\", \"PRECIO_VENTA\", \"IMAGEN\", \"IMAGEN\")\n"
-                + "	VALUES (?, ?, ?, ?)";
-        int id = con.EjecutarInsert(consulta, "ID", CODIGO, NOMBRE, PRECIO_VENTA, IMAGEN);
+                + "	\"CODIGO\", \"NOMBRE\", \"PRECIO_VENTA\", \"IMAGEN\", \"ID_CATEGORIA_PRODUCTO\")\n"
+                + "	VALUES (?, ?, ?, ?, ?)";
+        int id = con.EjecutarInsert(consulta, "ID", CODIGO, NOMBRE, PRECIO_VENTA, IMAGEN, ID_CATEGORIA_PRODUCTO);
         this.ID = id;
         return id;
     }
 
     public void update() throws SQLException {
         String consulta = "UPDATE public.\"PRODUCTO\"\n"
-                + "	SET \"CODIGO\"=?, \"NOMBRE\"=?, \"PRECIO_VENTA\"=?, \"IMAGEN\"=?\n"
+                + "	SET \"CODIGO\"=?, \"NOMBRE\"=?, \"PRECIO_VENTA\"=?, \"IMAGEN\"=?, \"ID_CATEGORIA_PRODUCTO\"=?\n"
                 + "	WHERE \"ID\"=?;";
-        con.EjecutarSentencia(consulta, CODIGO, NOMBRE, PRECIO_VENTA, IMAGEN, ID);
+        con.EjecutarSentencia(consulta, CODIGO, NOMBRE, PRECIO_VENTA, IMAGEN, ID_CATEGORIA_PRODUCTO, ID);
     }
 
     public void delete() throws SQLException {
@@ -110,6 +119,7 @@ public class PRODUCTO {
         while (rs.next()) {
             obj = new JSONObject();
             obj.put("ID", rs.getInt("ID"));
+            obj.put("ID_CATEGORIA_PRODUCTO", rs.getInt("ID_CATEGORIA_PRODUCTO"));
             obj.put("CODIGO", rs.getString("CODIGO"));
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
@@ -129,6 +139,7 @@ public class PRODUCTO {
         PRODUCTO p = new PRODUCTO(con);
         if (rs.next()) {
             p.setID(rs.getInt("ID"));
+            p.setID_CATEGORIA_PRODUCTO(rs.getInt("ID_CATEGORIA_PRODUCTO"));
             p.setCODIGO(rs.getString("CODIGO"));
             p.setNOMBRE(rs.getString("NOMBRE"));
             p.setIMAGEN(rs.getString("IMAGEN"));
@@ -145,6 +156,7 @@ public class PRODUCTO {
         obj.put("NOMBRE", NOMBRE);
         obj.put("IMAGEN", IMAGEN);
         obj.put("PRECIO_VENTA", PRECIO_VENTA);
+        obj.put("ID_CATEGORIA_PRODUCTO", ID_CATEGORIA_PRODUCTO);
         return obj;
     }
 
@@ -154,6 +166,8 @@ public class PRODUCTO {
                 + "	   PRODUCTO.\"NOMBRE\",\n"
                 + "        PRODUCTO.\"PRECIO_VENTA\",\n"
                 + "        PRODUCTO.\"IMAGEN\",\n"
+                + "        PRODUCTO.\"ID_CATEGORIA_PRODUCTO\",\n"
+                + "        \"CATEGORIA_PRODUCTO\".\"NOMBRE\" AS CATEGORIA_PRODUCTO,\n"
                 + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
                 + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
                 + "         LEFT JOIN (\n"
@@ -164,6 +178,7 @@ public class PRODUCTO {
                 + "					INNER JOIN \"public\".\"SUCURSAL\" ON \"public\".\"NOTA_RECEPCION\".\"ID_SUCURSAL\" = \"public\".\"SUCURSAL\".\"ID\" AND \"public\".\"SUCURSAL\".\"ID\" = ? \n"
                 + "		 ) AS CANTIDAD\n"
                 + "         ON PRODUCTO.\"ID\" = CANTIDAD.\"ID_PRODUCTO\"\n"
+                + "         LEFT JOIN \"CATEGORIA_PRODUCTO\" ON PRODUCTO.\"ID_CATEGORIA_PRODUCTO\" = \"CATEGORIA_PRODUCTO\".\"ID\"\n"
                 + "    GROUP BY PRODUCTO.\"ID\",\n"
                 + "	   		 PRODUCTO.\"NOMBRE\"\n"
                 + "    ORDER BY PRODUCTO.\"NOMBRE\" ASC;\n"
@@ -181,6 +196,7 @@ public class PRODUCTO {
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
+            obj.put("CATEGORIA_PRODUCTO", rs.getString("CATEGORIA_PRODUCTO"));
             obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
             json.put(obj);
         }
@@ -195,6 +211,8 @@ public class PRODUCTO {
                 + "	   PRODUCTO.\"NOMBRE\",\n"
                 + "        PRODUCTO.\"PRECIO_VENTA\",\n"
                 + "        PRODUCTO.\"IMAGEN\",\n"
+                + "        PRODUCTO.\"ID_CATEGORIA_PRODUCTO\",\n"
+                + "        \"CATEGORIA_PRODUCTO\".\"NOMBRE\" AS CATEGORIA_PRODUCTO,\n"
                 + "        SUM(CANTIDAD.\"CANTIDAD\") AS CANTIDAD\n"
                 + "	FROM public.\"PRODUCTO\" AS PRODUCTO\n"
                 + "         INNER JOIN (\n"
@@ -205,6 +223,7 @@ public class PRODUCTO {
                 + "					INNER JOIN \"public\".\"SUCURSAL\" ON \"public\".\"NOTA_RECEPCION\".\"ID_SUCURSAL\" = \"public\".\"SUCURSAL\".\"ID\" AND \"public\".\"SUCURSAL\".\"ID\" = ? \n"
                 + "		 ) AS CANTIDAD\n"
                 + "         ON PRODUCTO.\"ID\" = CANTIDAD.\"ID_PRODUCTO\"\n"
+                + "         LEFT JOIN \"CATEGORIA_PRODUCTO\" ON PRODUCTO.\"ID_CATEGORIA_PRODUCTO\" = \"CATEGORIA_PRODUCTO\".\"ID\"\n"
                 + "    GROUP BY PRODUCTO.\"ID\",\n"
                 + "	   		 PRODUCTO.\"NOMBRE\"\n"
                 + "    ORDER BY PRODUCTO.\"NOMBRE\" ASC;\n"
@@ -222,6 +241,7 @@ public class PRODUCTO {
             obj.put("NOMBRE", rs.getString("NOMBRE"));
             obj.put("IMAGEN", rs.getString("IMAGEN"));
             obj.put("PRECIO_VENTA", rs.getDouble("PRECIO_VENTA"));
+            obj.put("CATEGORIA_PRODUCTO", rs.getString("CATEGORIA_PRODUCTO"));
             obj.put("CANTIDAD", rs.getInt("CANTIDAD"));
             json.put(obj);
         }
