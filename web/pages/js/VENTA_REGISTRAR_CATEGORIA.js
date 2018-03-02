@@ -1,6 +1,4 @@
 var url = "../VENTA_REGISTRAR_CATEGORIA_CONTROLLER";
-var tabla;
-var insumos;
 $(document).ready(function () {
     init();
 });
@@ -14,21 +12,15 @@ function init() {
         // CATEGORIAS
         var html = "";
         $.each(json, function (i, obj) {
-            html += productoFilaHtml(obj);
+            html += categoriaHtml(obj);
         });
-        $("#cuerpo").html(html);
-        formato_decimal("#cuerpo .numero_decimal");
-        tabla = $('#tabla').DataTable({
-            "language": {
-                "url": "../plugins/datatables/i18n/spanish.json"
-            }
-        });
+        $("#lista_categorias").html(html);
         ocultarCargando();
     });
 }
 
-function productoFilaHtml(obj) {
-    var tr = "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
+function categoriaFilaHtml(obj) {
+    var li = "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
     tr += "<td>" + (obj.CODIGO || "") + "</td>";
     tr += "<td>" + (obj.NOMBRE || "") + "</td>";
     tr += "<td class='text-center'>";
@@ -113,7 +105,7 @@ function guardar_producto() {
                     }
                     tabla.rows().invalidate();
                 } else {
-                    var tr = $(productoFilaHtml(json));
+                    var tr = $(categoriaFilaHtml(json));
                     formato_decimal(tr.find(".numero_decimal"));
                     tabla.row.add(tr).draw(false);
                 }

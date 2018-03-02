@@ -120,6 +120,34 @@ public class CATEGORIA_PRODUCTO {
         return json;
     }
 
+    public JSONArray todosXLevel() throws SQLException, JSONException {
+        String consulta = "WITH RECURSIVE hijos AS (\n"
+                + "    SELECT \"ID\", \"ID_CATEGORIA_PRODUCTO\", \"NOMBRE\", 1 as depth\n"
+                + "	FROM \"CATEGORIA_PRODUCTO\"\n"
+                + "    WHERE \"ID_CATEGORIA_PRODUCTO\" IS NULL\n"
+                + "    UNION\n"
+                + "    SELECT m.\"ID\", m.\"ID_CATEGORIA_PRODUCTO\", m.\"NOMBRE\",  depth + 1\n"
+                + "    FROM \"CATEGORIA_PRODUCTO\" m\n"
+                + "    INNER JOIN hijos ON m.\"ID_CATEGORIA_PRODUCTO\" = hijos.\"ID\")\n"
+                + "SELECT * FROM hijos\n"
+                + "ORDER BY depth, \"NOMBRE\"";
+        PreparedStatement ps = con.statamet(consulta);
+        ResultSet rs = ps.executeQuery();
+        JSONArray json = new JSONArray();
+        JSONObject obj;
+        while (rs.next()) {
+            obj = new JSONObject();
+            obj.put("ID", rs.getInt("ID"));
+            obj.put("NOMBRE", rs.getString("NOMBRE"));
+            obj.put("IMAGEN", rs.getString("IMAGEN"));
+            obj.put("ID_CATEGORIA_PRODUCTO", rs.getString("ID_CATEGORIA_PRODUCTO"));
+            json.put(obj);
+        }
+        rs.close();
+        ps.close();
+        return json;
+    }
+
     public CATEGORIA_PRODUCTO buscar(int id) throws SQLException {
         String consulta = "SELECT * FROM public.\"CATEGORIA_PRODUCTO\"\n"
                 + "	WHERE \"ID\"=?;";

@@ -258,9 +258,9 @@ public class PRODUCTO {
                 + "        PRODUCTO.\"IMAGEN\",\n"
                 + "        PRODUCTO.\"ID_CATEGORIA_PRODUCTO\",\n"
                 + "        \"CATEGORIA_PRODUCTO\".\"NOMBRE\" AS CATEGORIA_PRODUCTO\n"
-                + "FROM public.\"PRODUCTO\"\n"
+                + "FROM public.\"PRODUCTO\" AS PRODUCTO\n"
                 + "     LEFT JOIN \"CATEGORIA_PRODUCTO\" ON PRODUCTO.\"ID_CATEGORIA_PRODUCTO\" = \"CATEGORIA_PRODUCTO\".\"ID\"\n"
-                + "ORDER BY \"PRODUCTO\".\"CODIGO\" ASC ";
+                + "ORDER BY PRODUCTO.\"CODIGO\" ASC ";
         PreparedStatement ps = con.statamet(consulta);
         ResultSet rs = ps.executeQuery();
         JSONArray json = new JSONArray();

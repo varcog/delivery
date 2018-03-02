@@ -13,12 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import modelo.CATEGORIA_PRODUCTO;
-import modelo.INSUMO;
-import modelo.PRODUCTO;
-import modelo.PRODUCTO_INSUMO;
 import modelo.USUARIO;
 import org.json.JSONException;
-import org.json.JSONObject;
 import util.SIS_EVENTOS;
 
 @MultipartConfig
