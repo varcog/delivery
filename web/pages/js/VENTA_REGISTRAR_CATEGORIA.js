@@ -6,39 +6,27 @@ $(document).ready(function () {
 function init() {
     mostrarCargando();
     $.post(url, {evento: "init"}, function (resp) {
-        formato_decimal(".numero_decimal");
         var json = $.parseJSON(resp);
-
-        // CATEGORIAS
-        var html = "";
+        var html;
         $.each(json, function (i, obj) {
-            html += categoriaHtml(obj);
+            html = categoriaFilaHtml(obj);
+            $("#ul_cat_" + obj.ID_CATEGORIA_PRODUCTO).append(html);
         });
-        $("#lista_categorias").html(html);
+        $('#ul_cat_0').treed({openedClass: 'glyphicon-chevron-right', closedClass: 'glyphicon-chevron-down'});
         ocultarCargando();
     });
 }
 
 function categoriaFilaHtml(obj) {
-    var li = "<tr " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + " data-id='" + obj.ID + "' class='producto_" + obj.ID + "'>";
-    tr += "<td>" + (obj.CODIGO || "") + "</td>";
-    tr += "<td>" + (obj.NOMBRE || "") + "</td>";
-    tr += "<td class='text-center'>";
-    if (obj.IMAGEN)
-        tr += "<img src='" + obj.IMAGEN + "' class='x70' />";
-    tr += "</td>";
-    tr += "<td class='text-right numero_decimal'>" + obj.PRECIO_VENTA + "</td>";
-    tr += "<td class='text-center'>";
-    tr += "<i class='fa fa-edit text-warning' title='Editar' onclick='pop_modificar_producto(" + obj.ID + ",this);'></i>";
-    tr += "</td>";
-    tr += "<td class='text-center'>";
-    tr += "<i class='fa fa-gear text-muted' title='Detalle de Insumos' onclick='pop_insumos(" + obj.ID + ",this);'></i>";
-    tr += "</td>";
-    tr += "<td class='text-center'>";
-    tr += "<i class='fa fa-remove text-danger' title='Eliminar' onclick='pop_eliminar_producto(" + obj.ID + ",this);'></i>";
-    tr += "</td>";
-    tr += "</tr>";
-    return tr;
+    var html = "<li data-id='" + obj.ID + "' data-id_categoria_producto='" + obj.ID_CATEGORIA_PRODUCTO + "' " + (obj.IMAGEN ? "data-imagen='" + obj.IMAGEN + "'" : "") + ">";
+    html += "<i class='fa fa-plus-circle text-success fs_img' title='ADICIONAR'></i>";
+    html += "<i class='fa fa-edit text-warning fs_img' title='MODIFICAR'></i>";
+    html += "<i class='fa fa-remove text-danger fs_img' title='ELIMINAR'></i>";
+    html += "<input type='checkbox' class='fs_img' title='ESTADO'/>";
+    html += "<span class='nombre_cat'>" + obj.NOMBRE + "</span>";
+    html += "<ul id='ul_cat_" + obj.ID + "'></ul>";
+    html += "</li>";
+    return html;
 }
 
 function pop_registrar_producto() {

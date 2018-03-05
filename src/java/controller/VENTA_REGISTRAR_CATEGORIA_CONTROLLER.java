@@ -103,7 +103,7 @@ public class VENTA_REGISTRAR_CATEGORIA_CONTROLLER extends HttpServlet {
     }// </editor-fold>
 
     private String init(HttpServletRequest request, Conexion con) throws SQLException, JSONException {
-        return new CATEGORIA_PRODUCTO(con).todos().toString();
+        return new CATEGORIA_PRODUCTO(con).todosXLevel().toString();
     }
 
     private String guardar_categoria(HttpServletRequest request, Conexion con) throws SQLException, JSONException, IOException, ServletException {
@@ -142,6 +142,8 @@ public class VENTA_REGISTRAR_CATEGORIA_CONTROLLER extends HttpServlet {
             cp.setNOMBRE(nombre);
             cp.setIMAGEN(imagen);
             cp.setID_CATEGORIA_PRODUCTO(id_categoria);
+            boolean estado = Boolean.parseBoolean(request.getParameter("estado"));
+            cp.setESTADO(estado);
             try {
                 cp.update();
             } catch (Exception e) {
@@ -157,7 +159,7 @@ public class VENTA_REGISTRAR_CATEGORIA_CONTROLLER extends HttpServlet {
             }
             return cp.toJSONObject().toString();
         } else {
-            CATEGORIA_PRODUCTO cp = new CATEGORIA_PRODUCTO(id, nombre, imagen, id_categoria, con);
+            CATEGORIA_PRODUCTO cp = new CATEGORIA_PRODUCTO(id, nombre, imagen, id_categoria, true, con);
             cp.setCon(con);
             id = cp.insert();
             if (file != null && file.getSize() > 0 && file.getContentType().contains("image")) {
